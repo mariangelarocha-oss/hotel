@@ -1,0 +1,837 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>HotelSync · Gestão hoteleira</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--bg:#f4f6fa;--panel:#fff;--ink:#182230;--muted:#6b7788;--line:#e5e9f0;--brand:#2457d6;--brand2:#eaf0ff;--green:#13865b;--red:#c43d4d;--amber:#a96b09;--shadow:0 8px 28px #1b2a4410}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+button,input,select{font:inherit}button{cursor:pointer;border:0;border-radius:9px;padding:10px 14px;font-weight:650}
+.app{display:grid;grid-template-columns:248px 1fr;min-height:100vh}.side{background:#111c31;color:#e9eef8;padding:24px 16px;display:flex;flex-direction:column;gap:22px}.logo{display:flex;align-items:center;gap:10px;font-size:19px;font-weight:800;padding:0 10px}.mark{background:#3769e8;border-radius:10px;width:34px;height:34px;display:grid;place-items:center;color:white}.side small{color:#9eabc1;letter-spacing:.09em;font-size:10px;font-weight:800;padding:0 12px}.nav{display:grid;gap:5px}.nav button{background:transparent;color:#cbd5e5;text-align:left;padding:11px 12px;font-weight:550}.nav button.active,.nav button:hover{background:#243552;color:white}.side-foot{margin-top:auto;color:#9eabc1;font-size:12px;padding:10px}
+main{min-width:0}.top{height:72px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 30px;position:sticky;top:0;z-index:4}.top h1{font-size:18px;margin:0}.topright{display:flex;align-items:center;gap:12px;color:var(--muted)}.avatar{width:34px;height:34px;border-radius:50%;background:#e9efff;color:var(--brand);display:grid;place-items:center;font-weight:800}
+.content{padding:28px 30px;max-width:1500px;margin:auto}.welcome{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:22px}.welcome h2{margin:0 0 5px;font-size:24px}.muted{color:var(--muted)}.btn{background:var(--brand);color:white}.btn.secondary{background:#eef2f8;color:#344054}.btn.ghost{background:transparent;color:var(--brand);padding:7px}.btn.danger{background:#fff0f1;color:var(--red)}.cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:15px;margin-bottom:20px}.card,.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow)}.metric{padding:18px}.metric .label{color:var(--muted);font-size:12px}.metric strong{display:block;font-size:27px;margin:7px 0 2px}.metric .hint{font-size:11px;color:var(--muted)}.panel{padding:20px;margin-bottom:18px}.panel-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}.panel h3{font-size:16px;margin:0}.grid2{display:grid;grid-template-columns:1.35fr 1fr;gap:18px}.tablewrap{overflow:auto}table{width:100%;border-collapse:collapse;white-space:nowrap}th{text-align:left;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.04em;padding:10px;border-bottom:1px solid var(--line)}td{padding:12px 10px;border-bottom:1px solid #eef1f5}tr:last-child td{border-bottom:0}.pill{display:inline-flex;padding:4px 8px;border-radius:20px;font-size:11px;font-weight:700;background:#eef2f8;color:#526071}.pill.green{background:#e7f7ef;color:#14764f}.pill.red{background:#fff0f1;color:#b82f40}.pill.amber{background:#fff5df;color:#956009}.pill.blue{background:#eaf0ff;color:#2457d6}.toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:16px}.field{display:grid;gap:6px;margin-bottom:13px}.field label{font-size:12px;font-weight:700;color:#465367}.field input,.field select{border:1px solid #dce2eb;border-radius:9px;padding:10px 11px;background:#fff;min-width:0;width:100%;color:var(--ink)}.formgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 14px}.formgrid .full{grid-column:1/-1}.roomgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(145px,1fr));gap:8px}.room{border:1px solid var(--line);border-radius:11px;padding:9px;background:#fff;min-width:0}.room-top{display:flex;align-items:center;justify-content:space-between;gap:5px}.room strong{font-size:16px}.room-free{background:#e9f8ef;border-color:#8ed3a6}.room-occupied{background:#e8f0ff;border-color:#8db2f3}.room-reserved{background:#fff7df;border-color:#e8ca70}.room-cleaning{background:#fff0d9;border-color:#e7b45b}.room-maintenance,.room-blocked{background:#fdeaea;border-color:#e6a0a0}.room-guest{font-weight:600;color:var(--ink)}.room small{display:block;color:var(--muted);margin:4px 0 8px}.room .pill{font-size:10px}.empty{text-align:center;padding:30px;color:var(--muted)}.calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}.day{background:#f8f9fc;border:1px solid var(--line);border-radius:8px;min-height:78px;padding:7px;font-size:11px}.day b{display:block;margin-bottom:6px}.bar{border-radius:5px;padding:3px 5px;background:#eaf0ff;color:#2457d6;white-space:normal;margin-top:3px;font-size:10px}.notice{padding:12px 14px;background:#fff8e8;border:1px solid #f5e4bd;border-radius:10px;color:#80580c;margin-bottom:16px;font-size:12px}.modalback{position:fixed;inset:0;background:#10182880;display:none;align-items:center;justify-content:center;padding:18px;z-index:10}.modal{background:white;border-radius:16px;padding:22px;width:min(620px,100%);max-height:90vh;overflow:auto;box-shadow:0 20px 60px #0003}.modalhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}.modalhead h3{margin:0}.close{background:#f0f2f6;color:#344054;padding:6px 10px}.actions{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}.hidden{display:none!important}.pricebox{padding:12px;background:#f4f7ff;border-radius:10px;color:#2449a3;margin:8px 0 14px}.inline-new{display:flex;gap:8px;align-items:end}.inline-new .field{flex:1}.checkline{display:flex;align-items:center;gap:9px;padding:10px 12px;background:#f7f9fc;border:1px solid var(--line);border-radius:9px}.checkline input{width:17px;height:17px}.discount-row{display:grid;grid-template-columns:1fr 150px;gap:12px;align-items:end}.subtle-note{font-size:11px;color:var(--muted);margin-top:-7px;margin-bottom:10px}.mobilemenu{display:none}
+@media(min-width:1400px){.roomgrid{grid-template-columns:repeat(8,minmax(0,1fr))}}@media(min-width:1100px) and (max-width:1399px){.roomgrid{grid-template-columns:repeat(6,minmax(0,1fr))}}@media(max-width:1000px){.cards{grid-template-columns:repeat(2,1fr)}.roomgrid{grid-template-columns:repeat(4,minmax(0,1fr))}.grid2{grid-template-columns:1fr}}
+@media(max-width:700px){.app{grid-template-columns:1fr}.side{display:none}.top{height:62px;padding:0 16px}.mobilemenu{display:inline-block;background:#eef2f8;color:#344054}.content{padding:20px 14px}.welcome{display:block}.welcome .btn{margin-top:12px}.cards{gap:9px}.metric{padding:13px}.metric strong{font-size:22px}.roomgrid{grid-template-columns:repeat(2,1fr)}.formgrid{grid-template-columns:1fr}.formgrid .full{grid-column:auto}.topright .role{display:none}}
+
+.roomgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(145px,1fr));gap:9px}
+.room{padding:10px;min-height:112px;border-radius:12px}
+.room-actions{display:flex;flex-wrap:wrap;gap:4px;margin-top:7px}
+.room-actions .btn{padding:6px 8px;font-size:11px}
+.room-free{background:#e4f6eb!important;border:1px solid #9bd8b3!important}
+.room-occupied{background:#ffe1e3!important;border:2px solid #d92d20!important;box-shadow:0 0 0 1px #fda29b inset!important}.room-occupied .pill{background:#b42318!important;color:#fff!important}.room-occupied .room-guest{color:#912018!important;font-weight:800}
+.room-reserved{background:#fff5d9!important;border:1px solid #e8ca75!important}
+.room-cleaning{background:#fff0dc!important;border:1px solid #e7b56e!important}
+.room-maintenance,.room-blocked{background:#fde7e9!important;border:1px solid #e5a2aa!important}
+.mini-room-calendar{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px;margin:12px 0}
+.mini-room-day{border-radius:8px;padding:6px 3px;min-height:65px;display:flex;flex-direction:column;gap:2px;text-align:center;font-size:11px}
+.mini-room-day.free{background:#e4f6eb}.mini-room-day.busy{background:#e3edff}
+.mini-room-day small{font-size:9px;color:#536174}.day-occupancy{display:flex;gap:4px;align-items:baseline;margin-top:5px}
+.day-occupancy strong{font-size:12px;color:#2457d6}.day-occupancy small{font-size:9px;color:var(--muted)}
+.occupancy-track{height:4px;background:#e8edf5;border-radius:5px;margin:3px 0 5px;overflow:hidden}.occupancy-track i{display:block;height:100%;background:#2457d6}
+@media(max-width:900px){.roomgrid{grid-template-columns:repeat(auto-fill,minmax(125px,1fr))}}
+
+/* Autenticação Supabase */
+body:not(.authenticated) .app{display:none}
+#loginScreen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background:linear-gradient(135deg,#101c33,#1f3c70)}
+#loginCard{width:min(430px,100%);background:#fff;border-radius:18px;padding:30px;box-shadow:0 24px 70px #0004}
+#loginCard .logo{padding:0;color:#182230;margin-bottom:22px}
+#loginCard h1{font-size:24px;margin:0 0 6px}
+#loginCard p{color:#6b7788;margin:0 0 22px}
+#loginCard input{width:100%;padding:12px;border:1px solid #dce2eb;border-radius:9px}
+#loginCard label{display:block;font-size:12px;font-weight:700;margin:0 0 6px;color:#465367}
+#loginCard .field{margin-bottom:14px}
+#loginError{display:none;background:#fff0f1;color:#b42318;padding:10px;border-radius:8px;margin:12px 0;font-size:13px}
+#loginInfo{font-size:11px;color:#667085;margin-top:14px;line-height:1.5}
+#logoutBtn{background:#eef2f8;color:#344054;padding:8px 10px}
+@media(max-width:520px){#loginCard{padding:22px}}
+</style>
+</head>
+<body>
+<section id="loginScreen">
+ <div id="loginCard">
+  <div class="logo"><span class="mark">H</span> HotelSync</div>
+  <h1>Acessar o sistema</h1>
+  <p>Entre com seu e-mail e senha cadastrados no HotelSync.</p>
+  <form id="loginForm">
+   <div class="field"><label for="loginEmail">E-mail</label><input id="loginEmail" type="email" autocomplete="username" required placeholder="seuemail@hotel.com"></div>
+   <div class="field"><label for="loginPassword">Senha</label><input id="loginPassword" type="password" autocomplete="current-password" required placeholder="Sua senha"></div>
+   <button class="btn" id="loginSubmit" type="submit" style="width:100%">Entrar</button>
+   <div id="loginError" role="alert"></div>
+  </form>
+  <div id="loginInfo">Acesso protegido pelo Supabase Auth. Seu perfil e suas permissões são carregados do banco de dados.</div>
+ </div>
+</section>
+<div class="app">
+<aside class="side">
+ <div class="logo"><span class="mark">H</span> HotelSync</div>
+ <small>GESTÃO DO HOTEL</small>
+ <nav class="nav" id="nav">
+  <button class="active" data-page="dashboard">▦ &nbsp; Visão geral</button>
+  <button data-page="reservations">▣ &nbsp; Reservas</button>
+  <button data-page="archive">▤ &nbsp; Reservas encerradas</button>
+  <button data-page="finalized">✓ &nbsp; Reservas finalizadas</button>
+  <button data-page="calendar">▦ &nbsp; Calendário</button>
+  <button data-page="rooms">▤ &nbsp; Quartos</button>
+  <button data-page="cleaning">♧ &nbsp; Limpeza</button>
+  <button data-page="breakfast">☕ &nbsp; Café da manhã</button>
+  <button data-page="parking">▣ &nbsp; Estacionamento</button>
+  <button data-page="guests">♙ &nbsp; Hóspedes</button>
+  <button data-page="finance">＄ &nbsp; Financeiro</button>
+  <button data-page="consumption">▣ &nbsp; Consumo e extras</button>
+  <button data-page="products">▤ &nbsp; Produtos e estoque</button>
+  <button data-page="services">✧ &nbsp; Serviços</button>
+  <button data-page="cash">▣ &nbsp; Caixa</button>
+  <button data-page="shifts">◷ &nbsp; Fechamento de turno</button>
+  <button data-page="rates">↗ &nbsp; Tarifas</button>
+  <button data-page="settings">⚙ &nbsp; Configurações</button>
+ </nav>
+ <div class="side-foot" id="sideUserInfo">Acesso autenticado<br>Dados locais do protótipo</div>
+</aside>
+<main>
+ <header class="top"><div style="display:flex;align-items:center;gap:10px"><button class="mobilemenu" onclick="toggleMobile()">☰</button><h1 id="pageTitle">Visão geral</h1></div><div class="topright"><span class="role" id="currentUserLabel">Não autenticado</span><span class="avatar" id="currentUserAvatar">?</span><button id="logoutBtn" type="button" onclick="hotelLogout()">Sair</button></div></header>
+ <div class="content" id="content"></div>
+</main>
+</div>
+<div class="modalback" id="modalback"><div class="modal"><div class="modalhead"><h3 id="modalTitle"></h3><button class="close" onclick="closeModal()">✕</button></div><div id="modalBody"></div></div></div>
+<script>
+const $=s=>document.querySelector(s);
+const today=new Date(); today.setHours(0,0,0,0);
+const iso=d=>{const x=new Date(d);return x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0')+'-'+String(x.getDate()).padStart(2,'0')};
+const addDays=(d,n)=>{let x=new Date(d);x.setDate(x.getDate()+n);return x};
+const fmt=d=>new Date(d+'T12:00:00').toLocaleDateString('pt-BR');
+const money=n=>Number(n||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+const seed=()=>{
+ let cats=[{id:1,name:'Standard',base:220},{id:2,name:'Luxo',base:350},{id:3,name:'Suíte',base:490}];
+ let rooms=Array.from({length:40},(_,i)=>({id:i+101,number:String(i+101),category:cats[i<20?0:i<32?1:2].name,status:'Disponível'}));
+ let guests=[{id:1,name:'João Silva',phone:'(11) 99999-1001',email:'joao@email.com',document:'***.***.***-01'},{id:2,name:'Ana Costa',phone:'(11) 99999-1002',email:'ana@email.com',document:'***.***.***-02'},{id:3,name:'Pedro Santos',phone:'(11) 99999-1003',email:'pedro@email.com',document:'***.***.***-03'}];
+ let reservations=[
+ {id:1,guestId:1,room:'101',checkin:iso(addDays(today,1)),checkout:iso(addDays(today,4)),adults:2,children:0,channel:'Booking',status:'Confirmada',total:660,paid:330},
+ {id:2,guestId:2,room:'121',checkin:iso(addDays(today,0)),checkout:iso(addDays(today,2)),adults:2,children:0,channel:'Airbnb',status:'Confirmada',total:700,paid:700},
+ {id:3,guestId:3,room:'133',checkin:iso(addDays(today,3)),checkout:iso(addDays(today,6)),adults:1,children:0,channel:'Direta',status:'Pendente',total:1470,paid:0}
+ ];
+ let products=[
+ {id:1,name:'Água mineral',category:'Bebidas',price:4,cost:1.8,stock:80,minStock:15,active:true},
+ {id:2,name:'Refrigerante',category:'Bebidas',price:7,cost:3.5,stock:50,minStock:10,active:true},
+ {id:3,name:'Chocolate',category:'Snacks',price:6,cost:2.8,stock:30,minStock:8,active:true}
+ ];
+ let services=[
+ {id:1,name:'Café da manhã',unit:'pessoa/dia',price:25,active:true},
+ {id:2,name:'Estacionamento',unit:'veículo/diária',price:30,active:true},
+ {id:3,name:'Lavanderia',unit:'serviço',price:20,active:true}
+ ];
+ return {cats,rooms,guests,reservations,products,services,charges:[],cashMovements:[],hotel:'Hotel Demonstrativo',currency:'BRL',seasonMultiplier:1,highOccupancy:80,highMultiplier:1.2,lowMultiplier:0.9};
+};
+let db;try{db=JSON.parse(localStorage.getItem('hotelsync_db'))||seed()}catch(e){db=seed()}
+function save(){localStorage.setItem('hotelsync_db',JSON.stringify(db))}
+db.products ||= []; db.services ||= []; db.charges ||= []; db.cashMovements ||= []; db.payments ||= []; db.shifts ||= []; db.activeShiftId ||= null; db.cleaningTasks ||= []; db.breakfastAttendance ||= []; db.parkingVehicles ||= [];
+if(!db.products.length) db.products=[{id:1,name:'Água mineral',category:'Bebidas',price:4,cost:1.8,stock:80,minStock:15,active:true},{id:2,name:'Refrigerante',category:'Bebidas',price:7,cost:3.5,stock:50,minStock:10,active:true},{id:3,name:'Chocolate',category:'Snacks',price:6,cost:2.8,stock:30,minStock:8,active:true}];
+if(!db.services.length) db.services=[{id:1,name:'Café da manhã',unit:'pessoa/dia',price:25,active:true},{id:2,name:'Estacionamento',unit:'veículo/diária',price:30,active:true},{id:3,name:'Lavanderia',unit:'serviço',price:20,active:true}];
+let page='dashboard';
+function guest(id){return db.guests.find(g=>g.id==id)||{name:'Hóspede não identificado'}}
+function active(r){return !r.closed&&r.status!=='Cancelada'&&r.status!=='Encerrada'}
+function nights(a,b){return Math.max(1,Math.round((new Date(b)-new Date(a))/86400000))}
+function occupancy(){return db.rooms.filter(r=>roomStatus(r)==='Ocupado').length}
+function occupiedRoomsForToday(){return db.rooms.filter(r=>roomStatus(r)==='Ocupado')}
+function roomStatus(room){
+ if(['Manutenção','Bloqueado','Limpeza','Indisponível'].includes(room.status))return room.status;
+ let r=db.reservations.find(x=>active(x)&&String(x.room)===String(room.number)&&x.checkin<=iso(today)&&x.checkout>iso(today));
+ return r?(r.checkedIn?'Ocupado':'Reservado'):'Disponível';
+}
+function pill(s){let c=({'Disponível':'green','Confirmada':'green','Ocupado':'blue','Pendente':'amber','Cancelada':'red','Manutenção':'red','Indisponível':'red','Limpeza':'amber','Bloqueado':'red','Pago':'green','Parcial':'amber','Em aberto':'red'})[s]||'blue';return `<span class="pill ${c}">${s}</span>`}
+function title(t,sub,btn=''){return `<div class="welcome"><div><h2>${t}</h2><div class="muted">${sub}</div></div>${btn}</div>`}
+function pageNav(p){page=p;document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===p));$('#pageTitle').textContent=({dashboard:'Visão geral',reservations:'Reservas',archive:'Reservas encerradas',finalized:'Reservas finalizadas',calendar:'Calendário',rooms:'Quartos',cleaning:'Limpeza',breakfast:'Café da manhã',parking:'Estacionamento',guests:'Hóspedes',finance:'Financeiro',rates:'Tarifas',settings:'Configurações',consumption:'Consumo e extras',products:'Produtos e estoque',services:'Serviços',cash:'Caixa',shifts:'Fechamento de turno'})[p];render()}
+$('#nav').addEventListener('click',e=>{let b=e.target.closest('button[data-page]');if(b)pageNav(b.dataset.page)});
+function render(){
+ let c=$('#content');
+ if(page==='dashboard')c=dashboard(c);
+ if(page==='rooms')roomsPage(c);
+ if(page==='cleaning')cleaningPage(c);
+ if(page==='breakfast')breakfastPage(c);
+ if(page==='parking')parkingPage(c);
+ if(page==='reservations')reservationsPage(c);
+ if(page==='archive')archivePage(c);
+ if(page==='finalized')finalizedPage(c);
+ if(page==='calendar')calendarPage(c);
+ if(page==='guests')guestsPage(c);
+ if(page==='finance')financePage(c);
+ if(page==='rates')ratesPage(c);
+ if(page==='settings')settingsPage(c);
+ if(page==='consumption')consumptionPage(c);
+ if(page==='products')productsPage(c);
+ if(page==='services')servicesPage(c);
+ if(page==='cash')cashPage(c);
+ if(page==='shifts')shiftsPage(c);
+}
+function dashboard(c){
+ let occ=db.rooms.filter(r=>roomStatus(r)==='Ocupado').length;
+ let avail=db.rooms.filter(r=>roomStatus(r)==='Disponível').length;
+ let todayKey=iso(today),monthKey=todayKey.slice(0,7);
+ let receivedToday=db.cashMovements.filter(x=>x.type==='Entrada'&&x.date===todayKey).reduce((sum,x)=>sum+Number(x.amount||0),0);
+ let receivedMonth=db.cashMovements.filter(x=>x.type==='Entrada'&&String(x.date||'').slice(0,7)===monthKey).reduce((sum,x)=>sum+Number(x.amount||0),0);
+ let sellable=occ+avail,pct=sellable?Math.round(occ/sellable*100):0;
+ c.innerHTML=title('Bom dia 👋','Aqui está o resumo operacional do '+db.hotel+'.',`<button class="btn" onclick="newReservation()">＋ Nova reserva</button>`)+
+ `<div class="notice">Ambiente de demonstração: os dados ficam salvos somente neste navegador. As conexões com Booking, Airbnb e pagamentos ainda não estão ativadas.</div>
+ <div class="cards">
+ <div class="card metric"><div class="label">Quartos ocupados</div><strong>${occ}</strong><div class="hint">Ocupados hoje</div></div>
+ <div class="card metric"><div class="label">Quartos livres</div><strong>${avail}</strong><div class="hint">Disponíveis para hospedagem</div></div>
+ <div class="card metric"><div class="label">Recebido hoje</div><strong>${money(receivedToday)}</strong><div class="hint">Entradas registradas no caixa</div></div>
+ <div class="card metric"><div class="label">Recebido neste mês</div><strong>${money(receivedMonth)}</strong><div class="hint">Entradas desde o início do mês</div></div></div>
+ <div class="grid2"><section class="panel"><div class="panel-head"><h3>Próximas chegadas</h3><button class="btn ghost" onclick="pageNav('reservations')">Ver reservas →</button></div>${arrivalTable()}</section>
+ <section class="panel"><div class="panel-head"><h3>Ocupação de hoje</h3></div><div style="font-size:32px;font-weight:800">${pct}%</div><div style="height:10px;background:#edf0f5;border-radius:20px;margin:12px 0;overflow:hidden"><div style="height:100%;width:${pct}%;background:#2457d6"></div></div><div class="muted">${occ} ocupados · ${avail} livres</div><hr style="border:0;border-top:1px solid var(--line);margin:18px 0"><h3 style="margin-bottom:10px">Canais cadastrados</h3><div style="display:flex;gap:7px;flex-wrap:wrap"><span class="pill blue">Booking · Simulado</span><span class="pill blue">Airbnb · Simulado</span><span class="pill">Direta</span></div></section></div>`;
+}
+function arrivalTable(){let rows=db.reservations.filter(r=>active(r)&&r.checkin>=iso(today)).sort((a,b)=>a.checkin.localeCompare(b.checkin)).slice(0,5);return rows.length?`<div class="tablewrap"><table><thead><tr><th>Hóspede</th><th>Quarto</th><th>Entrada</th><th>Status</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${guest(r.guestId).name}</td><td>${r.room}</td><td>${fmt(r.checkin)}</td><td>${pill(r.status)}</td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">Nenhuma chegada programada.</div>'}
+function roomsPage(c){
+ let selected=window.roomDate||iso(today);
+ c.innerHTML=title('Quartos','Consulte a ocupação dos quartos em qualquer data.',`<button class="btn" onclick="newRoom()">＋ Cadastrar quarto</button>`)+
+ `<section class="panel"><div class="toolbar"><div class="field" style="margin:0;min-width:190px"><label>Consultar ocupação em</label><input type="date" id="roomDate" value="${selected}" onchange="window.roomDate=this.value;filterRooms()"></div><div class="field" style="margin:0;min-width:180px"><label>Situação</label><select id="roomFilter" onchange="filterRooms()"><option value="">Todas as situações</option><option>Disponível</option><option>Reservado</option><option>Ocupado</option><option>Indisponível</option><option>Manutenção</option><option>Limpeza</option><option>Bloqueado</option></select></div><div class="field" style="margin:0;min-width:180px"><label>Categoria</label><select id="catFilter" onchange="filterRooms()"><option value="">Todas as categorias</option>${db.cats.map(x=>`<option>${x.name}</option>`).join('')}</select></div></div>
+ <div id="roomSummary"></div></section><div class="roomgrid" id="roomgrid">${roomCards(db.rooms,selected)}</div>`;
+ filterRooms();
+}
+function roomStatusOnDate(room,date){
+ if(['Manutenção','Limpeza','Bloqueado','Indisponível'].includes(room.status))return room.status;
+ let r=db.reservations.find(x=>active(x)&&String(x.room)===String(room.number)&&x.checkin<=date&&x.checkout>date);
+ if(!r)return 'Disponível';
+ return date===iso(today)&&r.checkedIn?'Ocupado':'Reservado';
+}
+function roomCards(list,date){return list.map(r=>{
+ let st=roomStatusOnDate(r,date),res=db.reservations.find(x=>active(x)&&String(x.room)===String(r.number)&&x.checkin<=date&&x.checkout>date);
+ let cls=({'Disponível':'free','Ocupado':'occupied','Reservado':'reserved','Limpeza':'cleaning','Manutenção':'maintenance','Indisponível':'blocked','Bloqueado':'blocked'})[st]||'';
+ let cleaningPending=(db.cleaningTasks||[]).some(t=>String(t.room)===String(r.number)&&t.status!=='Concluída');
+ return `<div class="room room-${cls}"><div class="room-top"><strong>${r.number}</strong>${pill(st)}</div><small>${r.category}</small>${res?`<small class="room-guest">${guest(res.guestId).name}</small>`:''}${st==='Limpeza'||cleaningPending?`<div style="margin-top:7px;padding:6px 8px;border-radius:8px;background:#fff1cc;color:#854d0e;font-size:12px;font-weight:800">🧹 Em limpeza / aguardando</div>`:''}
+ <div class="room-actions"><button class="btn ghost" onclick="showRoomMiniCalendar('${String(r.number).replace(/'/g,"\\'")}')">Ver calendário</button><button class="btn" onclick="newReservation(null,'${String(r.number).replace(/'/g,"\\'")}')">＋ Reservar</button><button class="btn ghost" onclick="requestRoomCleaning('${String(r.number).replace(/'/g,"\\'")}')">🧹 Solicitar limpeza</button><button class="btn ghost" onclick="editRoom('${String(r.number).replace(/'/g,"\\'")}')">Editar</button>${st==='Limpeza'||cleaningPending?`<button class="btn" onclick="openCleaningForRoom('${String(r.number).replace(/'/g,"\\'")}')">Ver limpeza</button>`:''}</div></div>`;
+ }).join('')||'<div class="empty">Nenhum quarto encontrado.</div>'}
+function showRoomMiniCalendar(number){
+ let room=db.rooms.find(x=>String(x.number)===String(number));if(!room)return;
+ window._roomCalendarOffset=0;
+ modal('Calendário do quarto '+number,`<p>Disponibilidade do quarto <b>${number}</b> · ${room.category}</p>
+ <div class="panel-head" style="display:flex;align-items:center;justify-content:space-between;margin:8px 0">
+  <button type="button" class="btn secondary" onclick="shiftRoomMiniCalendar('${String(number).replace(/'/g,"\\'")}',-1)">← Mês anterior</button>
+  <strong id="roomMiniMonth"></strong>
+  <button type="button" class="btn secondary" onclick="shiftRoomMiniCalendar('${String(number).replace(/'/g,"\\'")}',1)">Próximo mês →</button>
+ </div>
+ <div id="roomMiniCalendarGrid"></div>
+ <div class="actions"><button class="btn secondary" onclick="closeModal()">Fechar</button><button class="btn" onclick="closeModal();newReservation(null,'${String(number).replace(/'/g,"\\'")}')">＋ Fazer reserva neste quarto</button></div>`);
+ drawRoomMiniCalendar(number);
+}
+function shiftRoomMiniCalendar(number,delta){
+ window._roomCalendarOffset=(window._roomCalendarOffset||0)+delta;
+ drawRoomMiniCalendar(number);
+}
+function drawRoomMiniCalendar(number){
+ let room=db.rooms.find(x=>String(x.number)===String(number)),grid=$('#roomMiniCalendarGrid'),label=$('#roomMiniMonth');
+ if(!room||!grid||!label)return;
+ let base=new Date(today.getFullYear(),today.getMonth()+(window._roomCalendarOffset||0),1,12,0,0,0);
+ label.textContent=base.toLocaleDateString('pt-BR',{month:'long',year:'numeric'});
+ let offset=(base.getDay()+6)%7,first=addDays(base,-offset),days=Array.from({length:42},(_,i)=>addDays(first,i));
+ grid.innerHTML=`<div class="mini-room-calendar">${['Seg','Ter','Qua','Qui','Sex','Sáb','Dom'].map(d=>`<div class="mini-room-day" style="min-height:auto;background:transparent;font-weight:700">${d}</div>`).join('')}${days.map(d=>{
+  let date=iso(d),res=db.reservations.find(x=>active(x)&&String(x.room)===String(number)&&x.checkin<=date&&x.checkout>date);
+  let status=res?(date===iso(today)?'Ocupado':'Reservado'):'Livre';
+  let outside=d.getMonth()!==base.getMonth();
+  return `<div class="mini-room-day ${res?'busy':'free'}" style="${outside?'opacity:.35':''}" title="${res?guest(res.guestId).name:'Livre'}"><b>${d.getDate()}</b><span>${status}</span>${res?`<small>${guest(res.guestId).name.split(' ')[0]}</small>`:''}</div>`;
+ }).join('')}</div>`;
+}
+function finishRoomCleaning(number){
+ let room=db.rooms.find(x=>String(x.number)===String(number));if(!room)return;
+ if(!confirm('Confirmar que o quarto '+number+' foi limpo e está pronto para receber outro hóspede?'))return;
+ room.status='Disponível';save();render();
+}
+function filterRooms(){
+ if(!$('#roomgrid'))return;
+ let date=$('#roomDate').value||iso(today),s=$('#roomFilter').value,cat=$('#catFilter').value;
+ let filtered=db.rooms.filter(r=>(!s||roomStatusOnDate(r,date)===s)&&(!cat||r.category===cat));
+ let counts=['Disponível','Reservado','Ocupado','Indisponível','Manutenção','Limpeza','Bloqueado'].map(k=>[k,db.rooms.filter(r=>roomStatusOnDate(r,date)===k).length]);
+ $('#roomSummary').innerHTML=`<div class="cards" style="margin:10px 0 0">${counts.map(([k,v])=>`<div class="card metric"><div class="label">${k}</div><strong>${v}</strong></div>`).join('')}</div><div class="muted" style="font-size:12px">Ocupação consultada para ${fmt(date)}. Reservas contam da entrada até a véspera da saída.</div>`;
+ $('#roomgrid').innerHTML=roomCards(filtered,date);
+}
+let reservationSort={key:'room',direction:'asc'};
+function normalizedReservationStatus(r){return String(r.status||'').trim().toLocaleLowerCase('pt-BR');}
+function normalizedCloseReason(r){return String(r.closeReason||'').trim().toLocaleLowerCase('pt-BR');}
+function isFinalizedReservation(r){
+ let st=normalizedReservationStatus(r),reason=normalizedCloseReason(r);
+ return st==='finalizada'||reason.includes('check-out realizado')||reason.includes('check out realizado')||reason.includes('check-out');
+}
+function isArchivedReservation(r){
+ let st=normalizedReservationStatus(r),reason=normalizedCloseReason(r);
+ if(isFinalizedReservation(r))return false;
+ return !!r.closed||['encerrada','cancelada','cancelado'].includes(st)||reason.includes('cancelamento')||reason.includes('no-show')||reason.includes('não compareceu');
+}
+function reservationsPage(c){
+ c.innerHTML=title('Reservas','Reservas em andamento e futuras. Hospedagens finalizadas ficam no histórico.',`<button class="btn" onclick="newReservation()">＋ Nova reserva</button>`)+
+ `<div class="toolbar"><input id="resSearch" placeholder="Buscar hóspede ou quarto..." oninput="filterReservations()" style="padding:10px;border:1px solid var(--line);border-radius:9px;min-width:230px"><select id="resStatus" onchange="filterReservations()" style="padding:10px;border:1px solid var(--line);border-radius:9px"><option value="">Todos os status</option><option>Confirmada</option><option>Pendente</option></select><button class="btn secondary" onclick="pageNav('archive')">Reservas encerradas</button></div>
+ <section class="panel"><div class="tablewrap"><table><thead><tr>
+ <th><button type="button" class="btn ghost" onclick="sortReservations('room')">Quarto <span id="sort-room">↕</span></button></th>
+ <th><button type="button" class="btn ghost" onclick="sortReservations('name')">Hóspede <span id="sort-name">↕</span></button></th>
+ <th><button type="button" class="btn ghost" onclick="sortReservations('checkin')">Entrada <span id="sort-checkin">↑</span></button></th>
+ <th><button type="button" class="btn ghost" onclick="sortReservations('checkout')">Saída <span id="sort-checkout">↕</span></button></th>
+ <th>Canal</th><th>Total</th><th>Pagamento</th><th>Status</th><th>Ações</th></tr></thead><tbody id="resRows"></tbody></table></div></section>`;
+ filterReservations();
+}
+function archivePage(c){
+ c.innerHTML=title('Reservas encerradas','Cancelamentos e encerramentos administrativos. Check-outs concluídos ficam em Reservas finalizadas.',`<button class="btn secondary" onclick="pageNav('reservations')">← Voltar às reservas</button>`)+
+ `<div class="toolbar"><input id="archiveSearch" placeholder="Buscar hóspede ou quarto..." oninput="filterArchive()" style="padding:10px;border:1px solid var(--line);border-radius:9px;min-width:220px"><select id="archiveStatus" onchange="filterArchive()" style="padding:10px;border:1px solid var(--line);border-radius:9px"><option value="">Todos os status</option><option>Cancelada</option><option>Encerrada</option></select><select id="archiveReason" onchange="filterArchive()" style="padding:10px;border:1px solid var(--line);border-radius:9px"><option value="">Todos os motivos</option><option>Cancelamento pelo hóspede</option><option>Cancelamento pelo hotel</option><option>No-show (não compareceu)</option><option>Saída antecipada</option><option>Outro</option></select></div><section class="panel"><div class="tablewrap"><table><thead><tr><th>Quarto</th><th>Hóspede</th><th>Entrada</th><th>Saída prevista</th><th>Encerramento</th><th>Motivo</th><th>Total</th><th>Ações</th></tr></thead><tbody id="archiveRows"></tbody></table></div></section>`;
+ filterArchive();
+}
+function finalizedPage(c){
+ c.innerHTML=title('Reservas finalizadas','Hospedagens que concluíram o check-out.',`<button class="btn secondary" onclick="pageNav('reservations')">← Voltar às reservas</button>`)+
+ `<div class="toolbar"><input id="finalizedSearch" placeholder="Buscar hóspede ou quarto..." oninput="filterFinalized()" style="padding:10px;border:1px solid var(--line);border-radius:9px;min-width:220px"><select id="finalizedPayment" onchange="filterFinalized()" style="padding:10px;border:1px solid var(--line);border-radius:9px"><option value="">Todos os pagamentos</option><option value="Pago">Pago</option><option value="Parcial">Parcial</option><option value="Em aberto">Em aberto</option></select><input id="finalizedDate" type="date" title="Data do check-out" onchange="filterFinalized()" style="padding:10px;border:1px solid var(--line);border-radius:9px"></div><section class="panel"><div class="tablewrap"><table><thead><tr><th>Quarto</th><th>Hóspede</th><th>Entrada</th><th>Saída prevista</th><th>Check-out</th><th>Total</th><th>Pagamento</th><th>Ações</th></tr></thead><tbody id="finalizedRows"></tbody></table></div></section>`;
+ filterFinalized();
+}
+function filterFinalized(){
+ let q=($('#finalizedSearch')?.value||'').toLocaleLowerCase('pt-BR'),pay=$('#finalizedPayment')?.value||'',date=$('#finalizedDate')?.value||'';
+ let rows=db.reservations.filter(isFinalizedReservation).filter(r=>(!pay||paymentStatus(r)===pay)&&(!date||r.closedAt===date)&&(guest(r.guestId).name.toLocaleLowerCase('pt-BR').includes(q)||String(r.room).toLowerCase().includes(q))).sort((a,b)=>String(b.closedAt||'').localeCompare(String(a.closedAt||'')));
+ let body=$('#finalizedRows');
+ if(body)body.innerHTML=rows.map(r=>`<tr><td><b>${r.room}</b></td><td>${guest(r.guestId).name}</td><td>${fmt(r.checkin)}</td><td>${fmt(r.checkout)}</td><td>${fmt(r.closedAt)} ${r.closedTime||''}</td><td>${money(Number(r.total||0)+extraTotal(r.id))}</td><td>${pill(paymentStatus(r))}</td><td><button class="btn ghost" onclick="showReservationStatement(${r.id})">Extrato</button> <button class="btn ghost" onclick="viewGuest(${r.guestId})">Hóspede</button> <button class="btn" onclick="editReservation(${r.id})">Corrigir datas</button></td></tr>`).join('')||'<tr><td colspan="8" class="empty">Nenhuma hospedagem finalizada.</td></tr>';
+}
+function reservationRows(rows,archived=false){
+ if(archived)return rows.map(r=>`<tr><td><b>${r.room}</b></td><td>${guest(r.guestId).name}</td><td>${fmt(r.checkin)}</td><td>${fmt(r.checkout)}</td><td>${fmt(r.closedAt||r.checkout)}</td><td>${r.closeReason||'Não informado'}${r.closeNote?`<div class="muted">${r.closeNote}</div>`:''}</td><td>${money(r.total)}</td><td><button class="btn ghost" onclick="viewGuest(${r.guestId})">Hóspede</button> <button class="btn ghost" onclick="showReservationStatement(${r.id})">Extrato</button> <button class="btn ghost" onclick="editReservation(${r.id})">Editar</button> <button class="btn ghost" onclick="reopenReservation(${r.id})">Reabrir</button></td></tr>`).join('')||'<tr><td colspan="8" class="empty">Nenhuma reserva encerrada encontrada.</td></tr>';
+ return rows.map(r=>`<tr><td><b>${r.room}</b></td><td>${guest(r.guestId).name}</td><td>${fmt(r.checkin)}</td><td>${fmt(r.checkout)}</td><td>${r.channel||'—'}</td><td>${money(r.total)}</td><td>${pill(paymentStatus(r))}</td><td>${pill(r.status)}</td><td><button class="btn ghost" onclick="viewGuest(${r.guestId})">Hóspede</button> <button class="btn ghost" onclick="showReservationStatement(${r.id})">Extrato</button> <button class="btn ghost" onclick="editReservation(${r.id})">Editar</button> ${r.checkedIn?'<span class="pill green">Hóspede no quarto</span>':`<button class="btn" onclick="checkinReservation(${r.id})">Check-in</button>`} <button class="btn" onclick="checkoutReservation(${r.id})">Check-out</button> <button class="btn secondary" onclick="closeReservation(${r.id})">Encerrar / cancelar</button></td></tr>`).join('')||'<tr><td colspan="9" class="empty">Nenhuma reserva ativa encontrada.</td></tr>';
+}
+function sortReservations(key){
+ if(reservationSort.key===key)reservationSort.direction=reservationSort.direction==='asc'?'desc':'asc';
+ else {reservationSort.key=key;reservationSort.direction='asc';}
+ filterReservations();
+}
+function filterReservations(){
+ let q=($('#resSearch')?.value||'').trim().toLocaleLowerCase('pt-BR');
+ let st=$('#resStatus')?.value||'';
+ let rows=db.reservations.filter(r=>{
+  let status=normalizedReservationStatus(r);
+  let isOpen=!r.closed&&!isFinalizedReservation(r)&&!isArchivedReservation(r)&&['confirmada','pendente'].includes(status);
+  return isOpen&&(!st||status===st.toLocaleLowerCase('pt-BR'))&&
+   (guest(r.guestId).name.toLocaleLowerCase('pt-BR').includes(q)||String(r.room).toLocaleLowerCase('pt-BR').includes(q));
+ });
+ let key=reservationSort.key,dir=reservationSort.direction==='asc'?1:-1;
+ const collator=new Intl.Collator('pt-BR',{numeric:true,sensitivity:'base'});
+ rows.sort((a,b)=>{
+  let av=key==='name'?guest(a.guestId).name:a[key];
+  let bv=key==='name'?guest(b.guestId).name:b[key];
+  if(key==='checkin'||key==='checkout')return String(av||'').localeCompare(String(bv||''))*dir;
+  return collator.compare(String(av??''),String(bv??''))*dir;
+ });
+ let body=$('#resRows');if(body)body.innerHTML=reservationRows(rows);
+ ['room','name','checkin','checkout'].forEach(k=>{let el=$('#sort-'+k);if(el)el.textContent=reservationSort.key===k?(reservationSort.direction==='asc'?'↑':'↓'):'↕';});
+}
+function filterArchive(){
+ let q=($('#archiveSearch')?.value||'').toLocaleLowerCase('pt-BR'),st=$('#archiveStatus')?.value||'',reason=$('#archiveReason')?.value||'';
+ let rows=db.reservations.filter(isArchivedReservation).filter(r=>(!st||r.status===st)&&(!reason||r.closeReason===reason)&&(guest(r.guestId).name.toLocaleLowerCase('pt-BR').includes(q)||String(r.room).toLowerCase().includes(q))).sort((a,b)=>String(b.closedAt||b.checkout).localeCompare(String(a.closedAt||a.checkout)));
+ let body=$('#archiveRows');if(body)body.innerHTML=reservationRows(rows,true);
+}
+function checkinReservation(id){
+ let r=db.reservations.find(x=>x.id===id);if(!r||!active(r))return;
+ if(r.checkedIn)return alert('O check-in desta hospedagem já foi realizado.');
+ if(r.checkin>iso(today))return alert('O check-in está previsto para '+fmt(r.checkin)+'. Não é possível registrar a entrada antes dessa data.');
+ let room=db.rooms.find(x=>String(x.number)===String(r.room));
+ if(!room)return alert('Quarto não encontrado.');
+ if(['Indisponível','Manutenção','Bloqueado','Limpeza'].includes(room.status))return alert('Este quarto está '+room.status.toLowerCase()+' e não pode receber o hóspede.');
+ let conflict=db.reservations.find(x=>x.id!==r.id&&active(x)&&String(x.room)===String(r.room)&&x.checkedIn&&x.checkin<=iso(today)&&x.checkout>iso(today));
+ if(conflict)return alert('Já existe um hóspede registrado neste quarto.');
+ modal('Confirmar check-in',`<p>Confirmar a entrada de <b>${guest(r.guestId).name}</b> no quarto <b>${r.room}</b>?</p><p class="muted">Entrada prevista: ${fmt(r.checkin)} · Saída prevista: ${fmt(r.checkout)}</p><div class="field"><label>Observações (opcional)</label><textarea id="checkinNote" rows="2" placeholder="Ex.: entrega das chaves, quantidade de bagagens..."></textarea></div><div class="actions"><button class="btn secondary" onclick="closeModal()">Cancelar</button><button class="btn" onclick="confirmCheckin(${id})">Confirmar check-in</button></div>`);
+}
+function confirmCheckin(id){
+ let r=db.reservations.find(x=>x.id===id);if(!r)return;
+ r.checkedIn=true;r.checkedInAt=iso(today);r.checkedInTime=new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});r.checkinNote=$('#checkinNote')?.value||'';
+ save();closeModal();render();
+}
+function cancelCheckin(id){
+ let r=db.reservations.find(x=>x.id===id);if(!r||!r.checkedIn||r.closed)return;
+ modal('Cancelar check-in',`<p>Deseja realmente retirar o registro de entrada de <b>${guest(r.guestId).name}</b> no quarto <b>${r.room}</b>?</p><div class="field"><label>Motivo da correção (obrigatório)</label><textarea id="cancelCheckinReason" rows="3" required placeholder="Ex.: check-in registrado por engano pelo funcionário"></textarea></div><p class="muted">A reserva continuará ativa. Os pagamentos e demais dados não serão apagados. O quarto voltará a aparecer como reservado, se estiver dentro do período.</p><div class="actions"><button class="btn secondary" onclick="closeModal()">Voltar</button><button class="btn" onclick="confirmCancelCheckin(${id})">Confirmar correção</button></div>`);
+}
+function confirmCancelCheckin(id){
+ let r=db.reservations.find(x=>x.id===id);if(!r||!r.checkedIn||r.closed)return;
+ let reason=($('#cancelCheckinReason')?.value||'').trim();if(!reason)return alert('Informe o motivo da correção.');
+ r.checkinHistory ||= [];
+ r.checkinHistory.push({action:'Check-in cancelado',date:iso(today),time:new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}),reason,previousDate:r.checkedInAt||null});
+ r.checkedIn=false;delete r.checkedInAt;delete r.checkedInTime;r.checkinCorrectionNote=reason;
+ save();closeModal();render();
+}
+function checkoutReservation(id){
+ let r=db.reservations.find(x=>x.id===id);if(!r)return;
+ let items=db.charges.filter(x=>x.reservationId==id);
+ let extra=items.reduce((s,x)=>s+Number(x.total||0),0);
+ let extraPaid=items.filter(x=>x.paid).reduce((s,x)=>s+Number(x.total||0),0);
+ let due=Math.max(0,Number(r.total||0)+extra-Number(r.paid||0)-extraPaid);
+ modal('Check-out e fechamento financeiro',`<p><b>${guest(r.guestId).name}</b> · Quarto <b>${r.room}</b></p>
+ <div class="pricebox"><p>Total da hospedagem e extras: <b>${money(Number(r.total||0)+extra)}</b></p><p>Já recebido anteriormente: <b>${money(Number(r.paid||0)+extraPaid)}</b></p><p>Saldo a receber no check-out: <b id="checkoutDue">${money(due)}</b></p></div>
+ <div class="field"><label>O saldo foi pago agora?</label><select id="checkoutPaid" onchange="toggleCheckoutPayments()"><option value="yes">Sim, vou registrar o recebimento</option><option value="no">Não, ficou pendente</option></select></div>
+ <div id="checkoutPaymentArea"><div id="checkoutPaymentRows"></div><button type="button" class="btn secondary" onclick="addCheckoutPaymentRow()">＋ Adicionar outra forma de pagamento</button><div class="pricebox" id="checkoutPaymentSum">Total informado: ${money(0)}</div></div>
+ <div class="field"><label>Observações do check-out (opcional)</label><textarea id="checkoutNote" rows="2" placeholder="Ex.: conferência do quarto, saldo combinado, observações da recepção..."></textarea></div>
+ <p class="muted">Após confirmar, a hospedagem será movida para Reservas finalizadas e o quarto ficará em Limpeza. Os valores recebidos serão lançados no caixa do dia.</p>
+ <div class="actions"><button class="btn secondary" onclick="closeModal()">Voltar</button><button class="btn" onclick="confirmCheckout(${id},${due})">Confirmar check-out</button></div>`);
+ window._checkoutReservationId=id;window._checkoutDue=due;window._checkoutRowCount=0;
+ addCheckoutPaymentRow();
+}
+function toggleCheckoutPayments(){
+ let area=$('#checkoutPaymentArea');if(area)area.classList.toggle('hidden',$('#checkoutPaid').value==='no');
+}
+function addCheckoutPaymentRow(){
+ let host=$('#checkoutPaymentRows');if(!host)return;
+ let div=document.createElement('div');div.className='checkout-payment-row formgrid';div.style.cssText='padding:10px;border:1px solid var(--line);border-radius:10px;margin:8px 0;align-items:end';
+ div.innerHTML=`<div class="field"><label>Forma de pagamento</label><select name="method"><option>Dinheiro</option><option>Pix</option><option>Cartão de crédito</option><option>Cartão de débito</option><option>Transferência bancária</option><option>Link de pagamento</option><option>Vale / crédito do hotel</option><option>Outro</option></select></div><div class="field"><label>Valor recebido (R$)</label><input name="amount" type="number" min="0" step=".01" value="${Number(window._checkoutDue||0).toFixed(2)}"></div><button type="button" class="btn ghost" onclick="this.parentElement.remove();updateCheckoutPaymentSum()">Remover</button>`;
+ div.querySelector('[name=amount]').addEventListener('input',updateCheckoutPaymentSum);host.appendChild(div);updateCheckoutPaymentSum();
+}
+function updateCheckoutPaymentSum(){
+ let total=[...document.querySelectorAll('.checkout-payment-row [name=amount]')].reduce((s,x)=>s+Number(x.value||0),0);
+ let el=$('#checkoutPaymentSum');if(el)el.innerHTML='Total informado: <b>'+money(total)+'</b>';
+}
+function confirmCheckout(id,due){
+ let r=db.reservations.find(x=>x.id===id);if(!r)return;
+ let items=[];
+ if($('#checkoutPaid')?.value!=='no'){
+  items=[...document.querySelectorAll('.checkout-payment-row')].map(row=>({method:row.querySelector('[name=method]').value,amount:Number(row.querySelector('[name=amount]').value||0)})).filter(x=>x.amount>0);
+  let total=items.reduce((s,x)=>s+x.amount,0);
+  if(total>due+0.001)return alert('O valor recebido não pode ultrapassar o saldo pendente de '+money(due)+'.');
+  if(due>0.001&&total<=0)return alert('Informe o valor recebido ou selecione que o saldo ficou pendente.');
+ }
+ items.forEach((it,i)=>{
+  r.paid=Number(r.paid||0)+it.amount;
+  db.cashMovements ||= [];db.payments ||= [];
+  let stamp=Date.now()+i;
+  db.cashMovements.push({id:stamp,date:iso(today),type:'Entrada',description:'Check-out / hospedagem - quarto '+r.room+' - '+guest(r.guestId).name,amount:it.amount,method:it.method,shiftId:db.activeShiftId||null,reservationId:r.id});
+  db.payments.push({id:stamp,reservationId:r.id,date:iso(today),method:it.method,amount:it.amount,source:'Check-out'});
+ });
+ r.closed=true;r.status='Finalizada';r.closeReason='Check-out realizado';r.closedAt=iso(today);r.closedTime=new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});r.closeNote=$('#checkoutNote')?.value||'';
+ r.checkoutPaymentsRecorded=items.reduce((s,x)=>s+x.amount,0);
+ r.checkoutBalancePending=Math.max(0,due-r.checkoutPaymentsRecorded);
+ let room=db.rooms.find(x=>String(x.number)===String(r.room));if(room)room.status='Limpeza';
+ save();closeModal();pageNav('reservations');
+}
+function closeReservation(id){
+ let r=db.reservations.find(x=>x.id===id);if(!r)return;
+ modal('Encerrar ou cancelar reserva',`<p>Reserva do hóspede <b>${guest(r.guestId).name}</b> · Quarto <b>${r.room}</b>.</p><div class="field"><label>Motivo do encerramento</label><select id="closeReason"><option>Cancelamento pelo hóspede</option><option>Cancelamento pelo hotel</option><option>No-show (não compareceu)</option><option>Saída antecipada</option><option>Outro</option></select></div><div class="field"><label>Detalhes / observações</label><textarea id="closeNote" rows="3" placeholder="Informe o motivo ou detalhes importantes..."></textarea></div><div class="actions"><button class="btn secondary" onclick="closeModal()">Voltar</button><button class="btn" onclick="confirmCloseReservation(${id})">Salvar encerramento</button></div>`);
+}
+function confirmCloseReservation(id){
+ let r=db.reservations.find(x=>x.id===id);if(!r)return;
+ r.closed=true;r.status=($('#closeReason').value.includes('Cancelamento')||$('#closeReason').value.includes('No-show'))?'Cancelada':'Encerrada';
+ r.closeReason=$('#closeReason').value;r.closeNote=$('#closeNote').value||'';r.closedAt=iso(today);
+ if(r.closeReason==='Saída antecipada'){let room=db.rooms.find(x=>String(x.number)===String(r.room));if(room)room.status='Limpeza';}
+ save();closeModal();pageNav('reservations');
+}
+function reopenReservation(id){
+ let r=db.reservations.find(x=>x.id===id);if(!r)return;
+ r.closed=false;r.status='Confirmada';delete r.closeReason;delete r.closeNote;delete r.closedAt;delete r.closedTime;
+ let room=db.rooms.find(x=>String(x.number)===String(r.room));if(room&&room.status==='Limpeza')room.status='Disponível';
+ save();pageNav('archive');
+}
+function showReservationStatement(id){
+ let r=db.reservations.find(x=>x.id===id),items=db.charges.filter(x=>x.reservationId==id),payments=(db.payments||[]).filter(x=>x.reservationId==id);
+ let extra=items.reduce((s,x)=>s+x.total,0),extraPaid=items.filter(x=>x.paid).reduce((s,x)=>s+x.total,0),total=Number(r.total||0)+extra,paid=Number(r.paid||0)+extraPaid;
+ modal('Extrato da hospedagem',`<p><b>${guest(r.guestId).name}</b> · Quarto ${r.room}</p><p class="muted">${fmt(r.checkin)} a ${fmt(r.checkout)}</p>
+ <section class="panel" style="box-shadow:none"><h3>Hospedagem</h3><p>Diárias: ${money(r.total)}</p>${r.discount?`<p>Desconto aplicado: -${money(r.discount)}</p>`:''}</section>
+ <section class="panel" style="box-shadow:none"><h3>Serviços e consumação</h3>${items.length?`<table><tbody>${items.map(x=>`<tr><td>${x.description} × ${x.quantity}</td><td>${money(x.total)}</td><td>${x.paid?'Pago':'Pendente'}</td></tr>`).join('')}</tbody></table>`:'<p class="muted">Nenhum extra lançado.</p>'}</section>
+ ${r.checkinHistory?.length?`<section class="panel" style="box-shadow:none"><h3>Histórico de check-in</h3>${r.checkinHistory.map(h=>`<p><b>${h.action}</b> · ${h.date} ${h.time||''}<br>Motivo: ${h.reason}</p>`).join('')}</section>`:''}
+ ${r.dateHistory?.length?`<section class="panel" style="box-shadow:none"><h3>Histórico de correções de datas</h3>${r.dateHistory.map(h=>`<p><b>${h.changedAt} ${h.changedTime||''}</b> · ${h.reason||'Correção administrativa'}<br>${h.changes.map(c=>`${c.field}: ${fmt(c.from)} → ${fmt(c.to)}`).join('<br>')}</p>`).join('')}</section>`:''}
+ <section class="panel" style="box-shadow:none"><h3>Pagamentos da hospedagem</h3>${payments.length?`<table><tbody>${payments.map(x=>`<tr><td>${x.date}</td><td>${x.method}</td><td>${money(x.amount)}</td></tr>`).join('')}</tbody></table>`:`<p class="muted">Pagamentos anteriores sem detalhamento por forma nesta versão.</p>`}</section>
+ <div class="pricebox"><p>Total da conta: <b>${money(total)}</b></p><p>Pago: <b>${money(paid)}</b></p><p>Saldo pendente: <b>${money(Math.max(0,total-paid))}</b></p></div>
+ <div class="actions"><button class="btn secondary" onclick="closeModal()">Fechar</button><button class="btn secondary" onclick="closeModal();viewGuest(${r.guestId})">Ver dados do hóspede</button><button class="btn" onclick="closeModal();newChargeForReservation(${id})">＋ Lançar consumo</button></div>`);
+}
+
+function paymentStatus(r){let due=Number(r.total)+extraTotal(r.id);let paid=Number(r.paid)+db.charges.filter(x=>x.reservationId==r.id&&x.paid).reduce((s,x)=>s+x.total,0);return paid>=due?'Pago':paid>0?'Parcial':'Em aberto'}
+function calendarPage(c){let start=new Date(today);start.setDate(1);let offset=(start.getDay()+6)%7;let first=addDays(start,-offset);let days=Array.from({length:42},(_,i)=>addDays(first,i));c.innerHTML=title('Calendário de ocupação','Visão mensal das reservas por data.',`<button class="btn secondary" onclick="pageNav('reservations')">Gerenciar reservas</button>`)+`<section class="panel"><div class="panel-head"><button class="btn secondary" onclick="changeMonth(-1)">←</button><h3 id="monthLabel"></h3><button class="btn secondary" onclick="changeMonth(1)">→</button></div><div class="calendar" id="calendarGrid"></div></section>`;window.calMonth=start.getMonth();window.calYear=start.getFullYear();drawCalendar()}
+function changeMonth(n){window.calMonth+=n;if(window.calMonth<0){window.calMonth=11;window.calYear--}if(window.calMonth>11){window.calMonth=0;window.calYear++}drawCalendar()}
+function drawCalendar(){let first=new Date(window.calYear,window.calMonth,1),offset=(first.getDay()+6)%7,begin=addDays(first,-offset),days=Array.from({length:42},(_,i)=>addDays(begin,i));$('#monthLabel').textContent=first.toLocaleDateString('pt-BR',{month:'long',year:'numeric'});$('#calendarGrid').innerHTML=['Seg','Ter','Qua','Qui','Sex','Sáb','Dom'].map(x=>`<div style="font-size:11px;color:var(--muted);padding:5px">${x}</div>`).join('')+days.map(d=>{let date=iso(d),rs=db.reservations.filter(r=>active(r)&&r.checkin<=date&&r.checkout>date).slice(0,2);let total=db.rooms.filter(r=>!['Manutenção','Bloqueado'].includes(r.status)).length;let occupied=db.rooms.filter(room=>db.reservations.some(r=>active(r)&&String(r.room)===String(room.number)&&r.checkin<=date&&r.checkout>date)).length;let pct=total?Math.round(occupied/total*100):0;return `<div class="day" style="${d.getMonth()!==window.calMonth?'opacity:.4':''}"><b>${d.getDate()}</b><div class="day-occupancy"><strong>${pct}%</strong><small>${occupied}/${total} quartos</small></div><div class="occupancy-track"><i style="width:${pct}%"></i></div>${rs.map(r=>`<div class="bar" title="${guest(r.guestId).name}">Q${r.room} · ${guest(r.guestId).name.split(' ')[0]}</div>`).join('')}</div>`}).join('')}
+function guestsPage(c){c.innerHTML=title('Hóspedes','Consulte os dados, endereço e histórico de hospedagens.',`<button class="btn" onclick="newGuest()">＋ Novo hóspede</button>`)+`<section class="panel"><div class="toolbar"><div class="field" style="margin:0;min-width:260px;flex:1"><label>Buscar hóspede</label><input id="guestDirectorySearch" type="search" placeholder="Nome, telefone, e-mail ou documento..." oninput="filterGuestDirectory()"></div></div><div class="tablewrap"><table><thead><tr><th>Nome</th><th>Telefone</th><th>E-mail</th><th>Documento</th><th>Hospedagens</th><th>Ações</th></tr></thead><tbody id="guestDirectoryRows"></tbody></table></div></section>`;filterGuestDirectory()} 
+function filterGuestDirectory(){let body=$('#guestDirectoryRows');if(!body)return;let q=($('#guestDirectorySearch')?.value||'').trim().toLocaleLowerCase('pt-BR');let list=db.guests.filter(g=>[g.name,g.phone,g.email,g.document].some(v=>String(v||'').toLocaleLowerCase('pt-BR').includes(q)));body.innerHTML=list.map(g=>`<tr><td><b>${g.name}</b></td><td>${g.phone||'—'}</td><td>${g.email||'—'}</td><td>${g.document||'—'}</td><td>${db.reservations.filter(r=>r.guestId===g.id).length}</td><td><button class="btn ghost" onclick="viewGuest(${g.id})">Visualizar</button><button class="btn ghost" onclick="editGuest(${g.id})">Editar</button></td></tr>`).join('')||`<tr><td colspan="6" class="empty">${q?'Nenhum hóspede encontrado.':'Nenhum hóspede cadastrado.'}</td></tr>`}
+function financePage(c){let total=db.reservations.filter(active).reduce((s,r)=>s+Number(r.total),0),paid=db.reservations.filter(active).reduce((s,r)=>s+Number(r.paid),0);c.innerHTML=title('Financeiro','Acompanhe valores previstos, recebidos e pendentes.')+`<div class="cards"><div class="card metric"><div class="label">Valor das reservas ativas</div><strong>${money(total)}</strong></div><div class="card metric"><div class="label">Total recebido</div><strong>${money(paid)}</strong></div><div class="card metric"><div class="label">Saldo pendente</div><strong>${money(total-paid)}</strong></div><div class="card metric"><div class="label">Reservas</div><strong>${db.reservations.filter(active).length}</strong></div></div><section class="panel"><h3 style="margin-bottom:14px">Lançamentos por reserva</h3><div class="tablewrap"><table><thead><tr><th>Reserva</th><th>Hóspede</th><th>Valor total</th><th>Recebido</th><th>Pendente</th><th>Ação</th></tr></thead><tbody>${db.reservations.filter(active).map(r=>`<tr><td>#HS-${String(r.id).padStart(4,'0')}</td><td>${guest(r.guestId).name}</td><td>${money(r.total)}</td><td>${money(r.paid)}</td><td>${money(r.total-r.paid)}</td><td><button class="btn ghost" onclick="registerPayment(${r.id})">Registrar pagamento</button></td></tr>`).join('')||'<tr><td colspan="6" class="empty">Sem lançamentos.</td></tr>'}</tbody></table></div></section><div class="notice">Controle financeiro demonstrativo: registra pagamentos informados pela equipe. Não processa cartões nem movimenta dinheiro.</div>`}
+function ratesPage(c){c.innerHTML=title('Tarifas e temporadas','Configure preços-base e regras de ajuste conforme ocupação.')+`<section class="panel"><div class="panel-head"><h3>Regras de preço dinâmico</h3><button class="btn" onclick="saveRates()">Salvar regras</button></div><div class="formgrid"><div class="field"><label>Multiplicador em baixa temporada</label><input id="lowMult" type="number" min=".1" step=".05" value="${db.lowMultiplier}"></div><div class="field"><label>Limite de ocupação para alta demanda (%)</label><input id="highOcc" type="number" min="1" max="100" value="${db.highOccupancy}"></div><div class="field"><label>Multiplicador em alta demanda</label><input id="highMult" type="number" min=".1" step=".05" value="${db.highMultiplier}"></div></div><div class="notice">A tarifa calculada nesta versão é uma sugestão interna: preço-base × multiplicador sazonal × ajuste de ocupação. Ela não altera automaticamente preços nas plataformas.</div></section><section class="panel"><div class="panel-head"><h3>Categorias e preços-base</h3><button class="btn secondary" onclick="newCategory()">＋ Nova categoria</button></div><div class="tablewrap"><table><thead><tr><th>Categoria</th><th>Preço-base por diária</th><th>Exemplo em alta demanda</th><th></th></tr></thead><tbody>${db.cats.map(cat=>`<tr><td><b>${cat.name}</b></td><td>${money(cat.base)}</td><td>${money(cat.base*db.highMultiplier)}</td><td><button class="btn ghost" onclick="editCategory(${cat.id})">Editar</button></td></tr>`).join('')}</tbody></table></div></section>`}
+function saveRates(){db.lowMultiplier=Number($('#lowMult').value)||.9;db.highOccupancy=Math.min(100,Math.max(1,Number($('#highOcc').value)||80));db.highMultiplier=Number($('#highMult').value)||1.2;save();render();alert('Regras salvas.')}
+function settingsPage(c){c.innerHTML=title('Configurações','Personalize os dados básicos do hotel e faça cópias de segurança.')+`<section class="panel"><h3 style="margin-bottom:15px">Dados do estabelecimento</h3><div class="field"><label>Nome do hotel</label><input id="hotelName" value="${db.hotel}"></div><button class="btn" onclick="db.hotel=$('#hotelName').value.trim()||'Meu Hotel';save();render()">Salvar nome</button></section><section class="panel"><h3 style="margin-bottom:10px">Idioma</h3><div class="field"><label>Idioma da interface</label><select disabled><option>Português (Brasil)</option></select></div><div class="muted">A estrutura está preparada para adicionar traduções. Outros idiomas serão implementados em uma próxima etapa.</div></section><section class="panel"><h3 style="margin-bottom:10px">Dados e segurança</h3><p class="muted">Nesta versão, os dados ficam armazenados localmente no navegador deste dispositivo. Não há sincronização entre aparelhos, contas de usuários ou backup em nuvem.</p><div class="toolbar"><button class="btn secondary" onclick="exportData()">Exportar backup JSON</button><label class="btn secondary" for="importFile">Importar backup</label><input class="hidden" id="importFile" type="file" accept="application/json" onchange="importData(event)"><button class="btn danger" onclick="resetData()">Restaurar demonstração</button></div></section>`}
+
+function reservationOptions(selected=''){return db.reservations.filter(r=>r.status!=='Cancelada').map(r=>`<option value="${r.id}" ${r.id==selected?'selected':''}>Quarto ${r.room} · ${guest(r.guestId).name} · ${fmt(r.checkin)} a ${fmt(r.checkout)}</option>`).join('')}
+function extrasForReservation(id){return db.charges.filter(x=>x.reservationId==id)}
+function extraTotal(id){return extrasForReservation(id).reduce((s,x)=>s+Number(x.total||0),0)}
+function consumptionPage(c){
+ let pending=db.charges.filter(x=>x.paymentMode==='Conta do quarto'&&!x.paid).reduce((s,x)=>s+x.total,0);
+ c.innerHTML=title('Consumo e extras','Lance produtos e serviços para pagamento imediato ou na conta do quarto.',`<button class="btn" onclick="newCharge()">＋ Lançar consumo</button>`)+
+ `<div class="cards"><div class="card metric"><div class="label">Lançamentos registrados</div><strong>${db.charges.length}</strong><div class="hint">Produtos e serviços</div></div><div class="card metric"><div class="label">A receber no checkout</div><strong>${money(pending)}</strong><div class="hint">Valores pendentes nas contas</div></div></div>
+ <section class="panel"><div class="panel-head"><h3>Histórico de consumo</h3></div><div class="tablewrap"><table><thead><tr><th>Data</th><th>Quarto / hóspede</th><th>Descrição</th><th>Qtd.</th><th>Total</th><th>Pagamento</th><th>Status</th></tr></thead><tbody>${db.charges.slice().reverse().map(x=>{let r=db.reservations.find(a=>a.id==x.reservationId);return `<tr><td>${fmt(x.date)}</td><td>${r?'Quarto '+r.room+' · '+guest(r.guestId).name:'Avulso'}</td><td>${x.description}</td><td>${x.quantity}</td><td>${money(x.total)}</td><td>${x.paymentMode}</td><td>${x.paid?pill('Pago'):pill('Em aberto')}</td></tr>`}).join('')||'<tr><td colspan="7" class="empty">Nenhum consumo lançado.</td></tr>'}</tbody></table></div></section>`;
+}
+function reservationExtrasHTML(id){
+ let list=db.charges.filter(x=>x.reservationId==id);
+ if(!list.length)return '<div class="empty">Nenhum serviço ou consumo lançado nesta hospedagem.</div>';
+ return `<div class="tablewrap"><table><thead><tr><th>Item</th><th>Qtd.</th><th>Total</th><th>Pagamento</th></tr></thead><tbody>${list.map(x=>`<tr><td>${x.description}</td><td>${x.quantity}</td><td>${money(x.total)}</td><td>${x.paid?pill('Pago'):pill('Em aberto')}</td></tr>`).join('')}</tbody></table></div><div style="text-align:right;margin-top:10px"><b>Total de extras: ${money(list.reduce((s,x)=>s+x.total,0))}</b></div>`;
+}
+function newChargeForReservation(id){window._chargeReturnReservationId=id;newCharge(id);}
+function newCharge(reservationId=null){
+ let activeRes=db.reservations.filter(r=>r.status!=='Cancelada');
+ let selectedReservation=reservationId||window._chargeReturnReservationId||'';
+ modal('Lançar consumo ou serviço',`<form id="chargeForm">
+ ${selectedReservation?`<input type="hidden" name="reservationId" value="${selectedReservation}"><div class="notice">Lançamento vinculado à hospedagem de ${guest(db.reservations.find(r=>r.id==selectedReservation)?.guestId)?.name||'hóspede'}.</div>`:`<div class="field"><label>Vincular à hospedagem</label><select name="reservationId" required>${reservationOptions()}</select></div>`}
+ <div class="formgrid"><div class="field"><label>Tipo de lançamento</label><select name="kind" id="chargeKind"><option value="product">Produto</option><option value="service">Serviço</option></select></div><div class="field"><label>Item</label><select name="itemId" id="chargeItem"></select></div>
+ <div class="field"><label>Quantidade</label><input name="quantity" id="chargeQty" type="number" min="1" value="1" required></div><div class="field"><label>Preço unitário (R$)</label><input name="price" id="chargePrice" type="number" min="0" step=".01" required></div>
+ <div class="field full" id="parkingPlateField" style="display:none"><label>Placa do veículo *</label><input name="vehiclePlate" id="chargeVehiclePlate" placeholder="ABC1D23"></div><div class="field full"><label>Forma de pagamento</label><select name="paymentMode"><option>Pagamento imediato</option><option>Conta do quarto</option></select></div></div>
+ <div class="pricebox" id="chargeCalc">Total: —</div>
+ <div class="actions"><button type="button" class="btn secondary" onclick="closeModal()">Cancelar</button><button class="btn">Registrar lançamento</button></div></form>`);
+ let form=$('#chargeForm'),kind=$('#chargeKind'),item=$('#chargeItem'),price=$('#chargePrice'),qty=$('#chargeQty');
+ function fillItems(){let arr=kind.value==='product'?db.products.filter(p=>p.active):db.services.filter(s=>s.active);item.innerHTML=arr.map(a=>`<option value="${a.id}">${a.name} · ${money(a.price)} / ${a.unit||'unidade'}</option>`).join('');if(arr[0])price.value=arr[0].price;toggleParkingPlate();calc()}
+ function toggleParkingPlate(){let it=(kind.value==='service'?db.services:[]).find(a=>a.id==item.value),yes=/estacionamento/i.test(it?.name||'');$('#parkingPlateField').style.display=yes?'block':'none';$('#chargeVehiclePlate').required=yes}
+ function calc(){$('#chargeCalc').innerHTML='Total: <b>'+money(Number(price.value||0)*Number(qty.value||0))+'</b>'}
+ kind.onchange=fillItems;item.onchange=()=>{let arr=kind.value==='product'?db.products:db.services,found=arr.find(a=>a.id==item.value);if(found)price.value=found.price;toggleParkingPlate();calc()};price.oninput=calc;qty.oninput=calc;fillItems();
+ form.onsubmit=e=>{e.preventDefault();let f=new FormData(form),k=f.get('kind'),arr=k==='product'?db.products:db.services,it=arr.find(a=>a.id==f.get('itemId')),q=Number(f.get('quantity')),p=Number(f.get('price')),rid=Number(f.get('reservationId'));if(!it||q<1||p<0)return alert('Confira o item, a quantidade e o preço.');let plate=(f.get('vehiclePlate')||'').trim().toUpperCase().replace(/[^A-Z0-9]/g,'');if(k==='service'&&/estacionamento/i.test(it.name)&&!plate)return alert('Informe a placa do veículo para lançar o estacionamento.');if(k==='product'&&it.stock<q)return alert('Estoque insuficiente. Disponível: '+it.stock);if(k==='product')it.stock-=q;let immediate=f.get('paymentMode')==='Pagamento imediato';let charge={id:Date.now(),reservationId:rid,date:iso(today),kind:k,itemId:it.id,description:it.name,quantity:q,unitPrice:p,total:q*p,paymentMode:f.get('paymentMode'),paid:immediate,vehiclePlate:plate||''};db.charges.push(charge);if(k==='service'&&/estacionamento/i.test(it.name)){db.parkingVehicles ||= [];if(!db.parkingVehicles.some(v=>v.plate===plate&&!v.departedAt))db.parkingVehicles.push({id:Date.now()+2,plate,vehicle:'',room:String(db.reservations.find(x=>x.id===rid)?.room||''),guestName:guest(db.reservations.find(x=>x.id===rid)?.guestId).name,entryDate:iso(today),chargeId:charge.id});}if(immediate)db.cashMovements.push({id:Date.now()+1,date:iso(today),type:'Entrada',description:'Venda/serviço - '+it.name,amount:q*p,method:'Dinheiro',shiftId:db.activeShiftId||null});save();closeModal();if(window._chargeReturnReservationId){let rid=window._chargeReturnReservationId;window._chargeReturnReservationId=null;newReservation(db.reservations.find(z=>z.id===rid));}else render()};
+}
+function productsPage(c){c.innerHTML=title('Produtos e estoque','Cadastre itens vendidos na recepção e acompanhe o estoque.',`<button class="btn" onclick="newProduct()">＋ Novo produto</button>`)+`<section class="panel"><div class="tablewrap"><table><thead><tr><th>Produto</th><th>Categoria</th><th>Preço</th><th>Estoque</th><th>Estoque mínimo</th><th>Situação</th><th></th></tr></thead><tbody>${db.products.map(p=>`<tr><td><b>${p.name}</b></td><td>${p.category}</td><td>${money(p.price)}</td><td>${p.stock}</td><td>${p.minStock}</td><td>${p.active?pill('Ativo'):pill('Bloqueado')} ${p.stock<=p.minStock?pill('Estoque baixo'):''}</td><td><button class="btn ghost" onclick="editProduct(${p.id})">Editar</button></td></tr>`).join('')}</tbody></table></div></section>`}
+function newProduct(p=null){let x=p||{name:'',category:'Bebidas',price:0,cost:0,stock:0,minStock:5,active:true};modal(p?'Editar produto':'Cadastrar produto',`<form id="productForm"><div class="formgrid">${field('Nome','name','text',x.name,'required')}${field('Categoria','category','text',x.category)}${field('Preço de venda (R$)','price','number',x.price,'min="0" step=".01"')}${field('Custo de aquisição (R$)','cost','number',x.cost,'min="0" step=".01"')}${field('Estoque atual','stock','number',x.stock,'min="0"')}${field('Estoque mínimo','minStock','number',x.minStock,'min="0"')}<div class="field full"><label><input name="active" type="checkbox" ${x.active?'checked':''}> Produto ativo para venda</label></div></div><div class="actions"><button type="button" class="btn secondary" onclick="closeModal()">Cancelar</button><button class="btn">Salvar produto</button></div></form>`);$('#productForm').onsubmit=e=>{e.preventDefault();let f=new FormData(e.target),v={name:f.get('name').trim(),category:f.get('category'),price:Number(f.get('price')),cost:Number(f.get('cost')),stock:Number(f.get('stock')),minStock:Number(f.get('minStock')),active:f.get('active')==='on'};if(p)Object.assign(p,v);else db.products.push({id:Date.now(),...v});save();closeModal();render()}}
+function editProduct(id){newProduct(db.products.find(p=>p.id===id))}
+function servicesPage(c){c.innerHTML=title('Serviços','Configure serviços extras e suas unidades de cobrança.',`<button class="btn" onclick="newService()">＋ Novo serviço</button>`)+`<section class="panel"><div class="tablewrap"><table><thead><tr><th>Serviço</th><th>Unidade de cobrança</th><th>Preço</th><th>Situação</th><th></th></tr></thead><tbody>${db.services.map(s=>`<tr><td><b>${s.name}</b></td><td>${s.unit}</td><td>${money(s.price)}</td><td>${s.active?pill('Ativo'):pill('Bloqueado')}</td><td><button class="btn ghost" onclick="editService(${s.id})">Editar</button></td></tr>`).join('')}</tbody></table></div></section><div class="notice">Cadastre aqui os serviços extras do hotel e configure livremente os nomes, unidades de cobrança e preços. Os lançamentos serão vinculados à hospedagem em Serviços e consumação.</div>`}
+function newService(s=null){let x=s||{name:'',unit:'serviço',price:0,active:true};modal(s?'Editar serviço':'Cadastrar serviço',`<form id="serviceForm"><div class="formgrid">${field('Nome do serviço','name','text',x.name,'required')}${field('Unidade de cobrança','unit','text',x.unit,'required')}${field('Preço unitário (R$)','price','number',x.price,'min="0" step=".01"')}</div><div class="actions"><button type="button" class="btn secondary" onclick="closeModal()">Cancelar</button><button class="btn">Salvar serviço</button></div></form>`);$('#serviceForm').onsubmit=e=>{e.preventDefault();let f=new FormData(e.target),v={name:f.get('name').trim(),unit:f.get('unit'),price:Number(f.get('price')),active:true};if(s)Object.assign(s,v);else db.services.push({id:Date.now(),...v});save();closeModal();render()}}
+function editService(id){newService(db.services.find(s=>s.id===id))}
+
+function requestRoomCleaning(number){
+ db.cleaningTasks ||= [];
+ let existing=db.cleaningTasks.find(t=>String(t.room)===String(number)&&t.status!=='Concluída');
+ if(existing){assignCleaning(existing.id);return}
+ let room=db.rooms.find(r=>String(r.number)===String(number));
+ db.cleaningTasks.push({id:Date.now(),room:String(number),guestName:'',createdAt:iso(today),status:'Pendente',assignedTo:'',notes:'Solicitada pela aba Quartos'});
+ if(room)room.status='Limpeza';
+ save();render();
+}
+function openCleaningForRoom(number){pageNav('cleaning');}
+function cleaningPage(c){
+ db.cleaningTasks ||= [];
+ db.rooms.filter(r=>r.status==='Limpeza'&&!db.cleaningTasks.some(t=>String(t.room)===String(r.number)&&t.status!=='Concluída')).forEach(r=>db.cleaningTasks.push({id:Date.now()+Math.floor(Math.random()*100000),room:String(r.number),guestName:'',createdAt:iso(today),status:'Pendente',assignedTo:'',notes:'Limpeza após check-out'}));
+ let tasks=[...db.cleaningTasks].sort((a,b)=>(a.status==='Concluída')-(b.status==='Concluída')||String(a.room).localeCompare(String(b.room),undefined,{numeric:true}));
+ c.innerHTML=title('Controle de limpeza','Distribua os quartos para a equipe e acompanhe o andamento.',`<button class="btn" onclick="newCleaningTask()">＋ Solicitar limpeza</button>`)+`<div class="cards"><div class="card metric"><div class="label">Pendentes</div><strong>${tasks.filter(t=>t.status==='Pendente').length}</strong></div><div class="card metric"><div class="label">Em andamento</div><strong>${tasks.filter(t=>t.status==='Em andamento').length}</strong></div><div class="card metric"><div class="label">Concluídas hoje</div><strong>${tasks.filter(t=>t.status==='Concluída'&&t.completedAt===iso(today)).length}</strong></div></div><section class="panel"><div class="tablewrap"><table><thead><tr><th>Quarto</th><th>Hóspede / origem</th><th>Solicitada em</th><th>Responsável</th><th>Status</th><th>Observações</th><th>Ações</th></tr></thead><tbody>${tasks.map(t=>`<tr><td><b>${t.room}</b></td><td>${t.guestName||'Solicitação manual'}</td><td>${t.createdAt}</td><td>${t.assignedTo||'Não atribuído'}</td><td>${pill(t.status)}</td><td>${t.notes||'—'}</td><td><button class="btn ghost" onclick="assignCleaning(${t.id})">Atribuir / atualizar</button>${t.status!=='Concluída'?` <button class="btn" onclick="completeCleaning(${t.id})">Concluir</button>`:''}</td></tr>`).join('')||'<tr><td colspan="7" class="empty">Nenhuma limpeza solicitada.</td></tr>'}</tbody></table></div></section>`;
+}
+function newCleaningTask(presetRoom=''){
+ modal('Solicitar limpeza de quarto',`<form id="cleanTaskForm"><div class="formgrid"><div class="field"><label>Quarto</label><select name="room" required>${db.rooms.map(r=>`<option value="${r.number}" ${String(r.number)===String(presetRoom)?'selected':''}>${r.number} · ${r.category}</option>`).join('')}</select></div><div class="field"><label>Responsável pela limpeza</label><input name="assignedTo" placeholder="Nome do funcionário"></div><div class="field full"><label>Observações</label><textarea name="notes" rows="2" placeholder="Ex.: limpeza completa, troca de roupa de cama..."></textarea></div></div><div class="actions"><button type="button" class="btn secondary" onclick="closeModal()">Cancelar</button><button class="btn">Criar solicitação</button></div></form>`);
+ $('#cleanTaskForm').onsubmit=e=>{e.preventDefault();let f=new FormData(e.target),room=String(f.get('room'));db.cleaningTasks.push({id:Date.now(),room,guestName:'',createdAt:iso(today),status:'Pendente',assignedTo:f.get('assignedTo').trim(),notes:f.get('notes').trim()});save();closeModal();render()};
+}
+function assignCleaning(id){
+ let t=db.cleaningTasks.find(x=>x.id===id);if(!t)return;
+ modal('Atribuir limpeza',`<form id="assignCleanForm"><div class="field"><label>Responsável</label><input name="assignedTo" value="${t.assignedTo||''}" placeholder="Nome do funcionário"></div><div class="field"><label>Status</label><select name="status">${['Pendente','Em andamento','Concluída'].map(x=>`<option ${t.status===x?'selected':''}>${x}</option>`).join('')}</select></div><div class="field"><label>Observações</label><textarea name="notes" rows="2">${t.notes||''}</textarea></div><div class="actions"><button type="button" class="btn secondary" onclick="closeModal()">Cancelar</button><button class="btn">Salvar</button></div></form>`);
+ $('#assignCleanForm').onsubmit=e=>{e.preventDefault();let f=new FormData(e.target);t.assignedTo=f.get('assignedTo').trim();t.status=f.get('status');t.notes=f.get('notes').trim();if(t.status==='Concluída'){t.completedAt=iso(today);finishRoomCleaning(t.room)}save();closeModal();render()};
+}
+function completeCleaning(id){let t=db.cleaningTasks.find(x=>x.id===id);if(!t)return;t.status='Concluída';t.completedAt=iso(today);finishRoomCleaning(t.room);save();render()}
+function breakfastExpected(){
+ let out=[];
+ db.charges.filter(ch=>ch.kind==='service'&&!ch.breakfastConsumption&&/café\s*da\s*manhã/i.test(ch.description||'')).forEach(ch=>{
+  let r=db.reservations.find(x=>x.id==ch.reservationId);if(!r||!active(r)||!(r.checkin<=iso(today)&&r.checkout>iso(today)))return;
+  let n=Math.max(1,Number(ch.quantity||1)),found=out.find(x=>x.reservationId===r.id);
+  if(found)found.quantity+=n;else out.push({reservationId:r.id,room:String(r.room),guestName:guest(r.guestId).name,quantity:n});
+ });return out;
+}
+function breakfastPage(c){
+ db.breakfastAttendance ||= [];
+ let expected=breakfastExpected(),todayKey=iso(today),served=db.breakfastAttendance.filter(x=>x.date===todayKey);
+ let rows=expected.map(x=>{let a=served.find(y=>String(y.room)===String(x.room)&&y.reservationId===x.reservationId);return {...x,id:a?.id||null,served:a?.served||0,notes:a?.notes||'',manual:false}});
+ served.filter(a=>a.reservationId==null).forEach(a=>rows.push({...a,manual:true}));
+ c.innerHTML=title('Controle do café da manhã','Confira os quartos com café contratado, registre o consumo e corrija os lançamentos quando necessário.',`<button class="btn" onclick="addBreakfastRoom()">＋ Incluir quarto</button>`)+`<div class="cards"><div class="card metric"><div class="label">Pessoas previstas</div><strong>${rows.reduce((n,x)=>n+Number(x.quantity||0),0)}</strong></div><div class="card metric"><div class="label">Pessoas registradas</div><strong>${served.reduce((n,x)=>n+Number(x.served||0),0)}</strong></div><div class="card metric"><div class="label">Quartos na lista</div><strong>${rows.length}</strong></div></div><section class="panel"><div class="panel-head"><h3>Lista de hoje · ${todayKey}</h3><span class="muted">Inclui serviços lançados e inclusões manuais</span></div><div class="tablewrap"><table><thead><tr><th>Quarto</th><th>Hóspede</th><th>Previstos</th><th>Tomaram café</th><th>Ações</th></tr></thead><tbody>${rows.map(x=>`<tr><td><b>${x.room}</b></td><td>${x.guestName||'—'}</td><td>${x.quantity}</td><td>${x.served||0}</td><td><button class="btn ghost" onclick="editBreakfastRow('${x.id||''}',${x.reservationId??'null'},'${String(x.room).replace(/'/g,"\\\\'")}',${Number(x.quantity||1)},${Number(x.served||0)},'${String(x.guestName||'').replace(/'/g,"\\\\'")}','${String(x.notes||'').replace(/'/g,"\\\\'")}',${x.manual?'true':'false'})">Editar</button><button class="btn" onclick="recordBreakfast(${x.reservationId??'null'},'${String(x.room).replace(/'/g,"\\\\'")}',${Number(x.quantity||1)})">Confirmar café consumido</button></td></tr>`).join('')||'<tr><td colspan="5" class="empty">Nenhum quarto com café lançado para hoje. Inclua um quarto manualmente.</td></tr>'}</tbody></table></div></section>`;
+}
+function recordBreakfast(reservationId,room,expected){
+ let old=db.breakfastAttendance.find(x=>x.date===iso(today)&&x.reservationId===reservationId&&String(x.room)===String(room));
+ let service=db.services.find(x=>x.active&&/café\s*da\s*manhã/i.test(x.name||''));
+ if(!service)return alert('Cadastre e ative o serviço “Café da manhã” em Serviços antes de confirmar o consumo.');
+ let unitPrice=Number(service.price||0);
+ modal('Confirmar café consumido',`<form id="breakfastForm"><p>Quarto <b>${room}</b> · Pessoas previstas: <b>${expected}</b></p><div class="field"><label>Quantas pessoas realmente tomaram café?</label><input name="served" type="number" min="0" max="50" value="${old?.served??expected}" required></div><div class="notice">Valor por pessoa: <b>${money(unitPrice)}</b>. O total será lançado automaticamente na conta do quarto.</div><div class="field"><label>Observação</label><input name="notes" value="${old?.notes||''}" placeholder="Opcional"></div><div class="actions"><button type="button" class="btn secondary" onclick="closeModal()">Cancelar</button><button class="btn">Confirmar e lançar no extrato</button></div></form>`);
+ $('#breakfastForm').onsubmit=e=>{e.preventDefault();let f=new FormData(e.target),servedCount=Number(f.get('served'));if(!Number.isInteger(servedCount)||servedCount<0||servedCount>50)return alert('Informe uma quantidade válida.');
+  let reservation=db.reservations.find(r=>r.id===reservationId)||db.reservations.find(r=>String(r.room)===String(room)&&r.checkedIn&&active(r)&&r.checkin<=iso(today)&&r.checkout>iso(today));
+  if(!reservation)return alert('Não foi possível localizar a hospedagem ativa deste quarto. O café não foi lançado.');
+  let obj=old||{id:Date.now(),date:iso(today),reservationId:reservation.id,room:String(room),guestName:guest(reservation.guestId).name};
+  obj.reservationId=reservation.id;obj.served=servedCount;obj.notes=f.get('notes').trim();obj.chargeId ||= null;
+  let existingCharge=obj.chargeId?db.charges.find(ch=>ch.id===obj.chargeId):null;
+  if(servedCount>0){
+   if(existingCharge){existingCharge.quantity=servedCount;existingCharge.unitPrice=unitPrice;existingCharge.total=servedCount*unitPrice;existingCharge.description='Café da manhã';existingCharge.itemId=service.id;existingCharge.breakfastConsumption=true;existingCharge.paid=false;existingCharge.paymentMode='Conta do quarto';}
+   else {let charge={id:Date.now()+1,reservationId:reservation.id,date:iso(today),kind:'service',itemId:service.id,description:'Café da manhã',breakfastConsumption:true,quantity:servedCount,unitPrice,total:servedCount*unitPrice,paymentMode:'Conta do quarto',paid:false};db.charges.push(charge);obj.chargeId=charge.id;}
+  } else if(existingCharge){db.charges=db.charges.filter(ch=>ch.id!==existingCharge.id);obj.chargeId=null;}
+  if(!old)db.breakfastAttendance.push(obj);save();closeModal();render();
+ };
+}
+function editBreakfastRow(id,reservationId,room,quantity,served,guestName,notes,manual){
+ let old=id?db.breakfastAttendance.find(x=>String(x.id)===String(id)):db.breakfastAttendance.find(x=>x.date===iso(today)&&x.reservationId===reservationId&&String(x.room)===String(room));
+ let occupied=occupiedRoomsForToday(),roomOptions=occupied.map(r=>`<option value="${r.number}" ${String(r.number)===String(room)?'selected':''}>${r.number} · ${r.category}</option>`).join('');
+ modal('Editar registro do café da manhã',`<form id="editBreakfastForm"><div class="formgrid"><div class="field"><label>Quarto (somente ocupados)</label><select name="room" required>${roomOptions||'<option value="" disabled selected>Nenhum quarto ocupado</option>'}</select></div><div class="field"><label>Hóspede</label><input name="guestName" value="${guestName.replaceAll('"','&quot;')}"></div><div class="field"><label>Quantidade prevista</label><input name="quantity" type="number" min="0" value="${quantity}" required></div><div class="field"><label>Quantidade que tomou</label><input name="served" type="number" min="0" value="${served}" required></div></div><div class="field"><label>Observação</label><input name="notes" value="${notes.replaceAll('"','&quot;')}"></div><div class="actions"><button type="button" class="btn secondary" onclick="closeModal()">Cancelar</button><button class="btn" ${occupied.length?'':'disabled'}>Salvar alterações</button></div></form>`);
+ $('#editBreakfastForm').onsubmit=e=>{e.preventDefault();let f=new FormData(e.target),newRoom=f.get('room');if(!old){old={id:Date.now(),date:iso(today),reservationId,room:String(room)};db.breakfastAttendance.push(old)}old.room=String(newRoom);old.guestName=f.get('guestName').trim();old.quantity=Number(f.get('quantity'));old.served=Number(f.get('served'));old.notes=f.get('notes').trim();save();closeModal();render()};
+}
+function addBreakfastRoom(){
+ let occupied=occupiedRoomsForToday();if(!occupied.length)return alert('Não há quartos ocupados no momento para incluir no café da manhã.');
+ modal('Incluir quarto na lista do café',`<form id="manualBreakfastForm"><div class="formgrid"><div class="field"><label>Quarto (somente ocupados)</label><select name="room" required>${occupied.map(r=>`<option value="${r.number}">${r.number} · ${r.category}</option>`).join('')}</select></div><div class="field"><label>Nome / identificação do hóspede</label><input name="guestName" placeholder="Opcional"></div><div class="field"><label>Quantidade prevista</label><input name="quantity" type="number" min="1" value="1" required></div></div><div class="actions"><button type="button" class="btn secondary" onclick="closeModal()">Cancelar</button><button class="btn">Adicionar à lista</button></div></form>`);
+ $('#manualBreakfastForm').onsubmit=e=>{e.preventDefault();let f=new FormData(e.target),room=f.get('room'),qty=Number(f.get('quantity'));let old=db.breakfastAttendance.find(x=>x.date===iso(today)&&x.reservationId==null&&String(x.room)===String(room));if(old){old.quantity=qty;old.guestName=f.get('guestName').trim()}else db.breakfastAttendance.push({id:Date.now(),date:iso(today),reservationId:null,room:String(room),guestName:f.get('guestName').trim(),quantity:qty,served:0,notes:'Inclusão manual'});save();closeModal();render()};
+}
+function parkingPage(c){
+ db.parkingVehicles ||= [];let activeCars=db.parkingVehicles.filter(x=>!x.departedAt);
+ c.innerHTML=title('Estacionamento','Controle os veículos que estão dentro do estacionamento do hotel.',`<button class="btn" onclick="newParkingVehicle()">＋ Registrar veículo</button>`)+`<div class="cards"><div class="card metric"><div class="label">Veículos no estacionamento</div><strong>${activeCars.length}</strong></div><div class="card metric"><div class="label">Entradas registradas hoje</div><strong>${db.parkingVehicles.filter(x=>x.entryDate===iso(today)).length}</strong></div></div><section class="panel"><h3>Veículos no estacionamento</h3><div class="tablewrap"><table><thead><tr><th>Placa</th><th>Veículo</th><th>Quarto</th><th>Hóspede</th><th>Entrada</th><th>Ações</th></tr></thead><tbody>${activeCars.map(v=>`<tr><td><b>${v.plate}</b></td><td>${v.vehicle||'—'}</td><td>${v.room||'—'}</td><td>${v.guestName||'—'}</td><td>${v.entryDate}</td><td><button class="btn" onclick="parkingExit(${v.id})">Registrar saída</button></td></tr>`).join('')||'<tr><td colspan="6" class="empty">Nenhum veículo no estacionamento.</td></tr>'}</tbody></table></div></section><section class="panel"><h3>Histórico de veículos</h3><div class="tablewrap"><table><thead><tr><th>Placa</th><th>Quarto</th><th>Entrada</th><th>Saída</th></tr></thead><tbody>${db.parkingVehicles.filter(x=>x.departedAt).slice().reverse().map(v=>`<tr><td>${v.plate}</td><td>${v.room||'—'}</td><td>${v.entryDate}</td><td>${v.departedAt}</td></tr>`).join('')||'<tr><td colspan="4" class="empty">Ainda não há saídas registradas.</td></tr>'}</tbody></table></div></section>`;
+}
+function newParkingVehicle(){
+ modal('Registrar veículo no estacionamento',`<form id="parkingForm"><div class="formgrid"><div class="field"><label>Placa do veículo *</label><input name="plate" required maxlength="10" placeholder="ABC1D23"></div><div class="field"><label>Modelo / cor</label><input name="vehicle" placeholder="Ex.: Onix branco"></div><div class="field"><label>Quarto (se houver)</label><input name="room" placeholder="Ex.: 101"></div><div class="field"><label>Hóspede</label><input name="guestName" placeholder="Nome do hóspede"></div></div><div class="actions"><button type="button" class="btn secondary" onclick="closeModal()">Cancelar</button><button class="btn">Registrar entrada</button></div></form>`);
+ $('#parkingForm').onsubmit=e=>{e.preventDefault();let f=new FormData(e.target),plate=f.get('plate').trim().toUpperCase().replace(/[^A-Z0-9]/g,'');if(!plate)return alert('Informe a placa do veículo.');if(db.parkingVehicles.some(v=>v.plate===plate&&!v.departedAt))return alert('Esta placa já está registrada no estacionamento.');db.parkingVehicles.push({id:Date.now(),plate,vehicle:f.get('vehicle').trim(),room:f.get('room').trim(),guestName:f.get('guestName').trim(),entryDate:iso(today)});save();closeModal();render()};
+}
+function parkingExit(id){let v=db.parkingVehicles.find(x=>x.id===id);if(!v)return;v.departedAt=iso(today);save();render()}
+function cashPage(c){let sh=currentShift();let entries=db.cashMovements.filter(x=>x.date===iso(today)),inflow=entries.filter(x=>x.type==='Entrada').reduce((s,x)=>s+x.amount,0),outflow=entries.filter(x=>x.type==='Saída').reduce((s,x)=>s+x.amount,0);c.innerHTML=title('Caixa','Acompanhe recebimentos e movimentações lançadas na recepção.',`<button class="btn" onclick="newCashMovement()">＋ Lançar movimentação</button>`)+`<div class="notice">${sh?'Turno aberto: '+sh.employee:'Nenhum turno aberto. Abra um turno no módulo Fechamento de turno para organizar os lançamentos.'}</div><div class="cards"><div class="card metric"><div class="label">Entradas de hoje</div><strong>${money(inflow)}</strong></div><div class="card metric"><div class="label">Saídas de hoje</div><strong>${money(outflow)}</strong></div><div class="card metric"><div class="label">Saldo de hoje</div><strong>${money(inflow-outflow)}</strong></div><div class="card metric"><div class="label">Movimentações</div><strong>${entries.length}</strong></div></div><section class="panel"><h3 style="margin-bottom:14px">Movimentações registradas</h3><div class="tablewrap"><table><thead><tr><th>Data</th><th>Tipo</th><th>Descrição</th><th>Forma</th><th>Valor</th></tr></thead><tbody>${db.cashMovements.slice().reverse().map(x=>`<tr><td>${fmt(x.date)}</td><td>${x.type}</td><td>${x.description}</td><td>${x.method||'—'}</td><td>${money(x.amount)}</td></tr>`).join('')||'<tr><td colspan="5" class="empty">Nenhuma movimentação registrada.</td></tr>'}</tbody></table></div></section><div class="notice">O caixa é um controle gerencial manual. Para fechamento fiscal, emissão de documentos ou conciliação bancária serão necessárias etapas e integrações específicas.</div>`}
+function newCashMovement(){modal('Lançar movimentação de caixa',`<form id="cashForm"><div class="formgrid">${field('Tipo','type','select','<option>Entrada</option><option>Saída</option>')}${field('Forma','method','select','<option>Dinheiro</option><option>Pix</option><option>Cartão</option><option>Transferência</option><option>Outro</option>')}${field('Descrição','description','text','','required')}${field('Valor (R$)','amount','number','','min=".01" step=".01" required')}</div><div class="actions"><button type="button" class="btn secondary" onclick="closeModal()">Cancelar</button><button class="btn">Registrar</button></div></form>`);$('#cashForm').onsubmit=e=>{e.preventDefault();let f=new FormData(e.target);db.cashMovements.push({id:Date.now(),date:iso(today),type:f.get('type'),method:f.get('method'),description:f.get('description'),amount:Number(f.get('amount')),shiftId:db.activeShiftId||null});save();closeModal();render()}}
+
+
+function currentShift(){return db.shifts.find(s=>s.id===db.activeShiftId&&s.status==='Aberto')||null}
+function shiftMoney(shift,method,type='Entrada'){return db.cashMovements.filter(m=>m.shiftId===shift.id&&m.method===method&&m.type===type).reduce((a,m)=>a+Number(m.amount||0),0)}
+function shiftsPage(c){
+ let sh=currentShift();
+ c.innerHTML=title('Fechamento de turno','Controle de caixa na troca de funcionários, em ciclos de 12 horas.');
+ if(sh){
+  let start=new Date(sh.startedAt).toLocaleString('pt-BR');
+  c.innerHTML+=`<div class="notice">Turno aberto por <b>${sh.employee}</b> desde ${start}. O próximo passo é registrar todas as entradas e saídas neste turno.</div>
+  <section class="panel"><div class="panel-head"><h3>Turno em andamento</h3>${pill('Aberto')}</div><div class="cards"><div class="card metric"><div class="label">Fundo inicial em dinheiro</div><strong>${money(sh.openingCash)}</strong></div><div class="card metric"><div class="label">Entradas registradas</div><strong>${money(db.cashMovements.filter(m=>m.shiftId===sh.id&&m.type==='Entrada').reduce((a,m)=>a+m.amount,0))}</strong></div><div class="card metric"><div class="label">Saídas registradas</div><strong>${money(db.cashMovements.filter(m=>m.shiftId===sh.id&&m.type==='Saída').reduce((a,m)=>a+m.amount,0))}</strong></div></div>
+  <button class="btn" onclick="closeShift()">Fechar turno e fazer conferência</button></section>`;
+ }else{
+  c.innerHTML+=`<section class="panel"><h3 style="margin-bottom:14px">Abrir novo turno</h3><form id="openShiftForm"><div class="formgrid">${field('Funcionário responsável','employee','text','','required')}${field('Data e hora de início','startedAt','datetime-local',localDateTime())}${field('Fundo inicial em dinheiro (R$)','openingCash','number','0','min="0" step=".01"')}</div><div class="notice">Os turnos padrão são de 12 horas. O horário real de início e encerramento será registrado para permitir a troca às 07h/19h ou em outro horário configurado pelo hotel.</div><div class="actions"><button class="btn">Abrir turno</button></div></form></section>`;
+  $('#openShiftForm').onsubmit=e=>{e.preventDefault();let f=new FormData(e.target);let sh={id:Date.now(),employee:f.get('employee').trim(),startedAt:f.get('startedAt')||new Date().toISOString(),openingCash:Number(f.get('openingCash')||0),status:'Aberto'};db.shifts.push(sh);db.activeShiftId=sh.id;save();render()};
+ }
+ c.innerHTML+=`<section class="panel"><div class="panel-head"><h3>Histórico de fechamentos</h3></div><div class="tablewrap"><table><thead><tr><th>Funcionário</th><th>Início</th><th>Fim</th><th>Diferença</th><th>Status</th></tr></thead><tbody>${db.shifts.filter(s=>s.status==='Fechado').slice().reverse().map(s=>`<tr><td>${s.employee}</td><td>${new Date(s.startedAt).toLocaleString('pt-BR')}</td><td>${new Date(s.endedAt).toLocaleString('pt-BR')}</td><td>${money(s.difference||0)}</td><td>${pill('Fechado')}</td></tr>`).join('')||'<tr><td colspan="5" class="empty">Nenhum turno fechado ainda.</td></tr>'}</tbody></table></div></section>`;
+}
+function localDateTime(){let d=new Date(),pad=n=>String(n).padStart(2,'0');return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`}
+function closeShift(){
+ let sh=currentShift();if(!sh)return;
+ let methods=['Dinheiro','Pix','Cartão de crédito','Cartão de débito','Transferência','Outro'];
+ let expected={};methods.forEach(m=>expected[m]=(m==='Dinheiro'?sh.openingCash:0)+shiftMoney(sh,m,'Entrada')-shiftMoney(sh,m,'Saída'));
+ modal('Fechamento e conferência do turno',`<div class="notice">Responsável: <b>${sh.employee}</b>. Confira os valores efetivamente apurados antes de fechar o turno.</div><form id="closeShiftForm"><div class="formgrid">${methods.map((m,i)=>field(m+' contado/confirmado (R$)','count'+i,'number',expected[m].toFixed(2),'min="0" step=".01"')).join('')}</div><div class="field"><label>Observações / divergências</label><input name="notes" placeholder="Informe diferenças, ocorrências ou passagem de turno"></div><div class="actions"><button type="button" class="btn secondary" onclick="closeModal()">Voltar</button><button class="btn">Confirmar fechamento</button></div></form>`);
+ $('#closeShiftForm').onsubmit=e=>{e.preventDefault();let f=new FormData(e.target),counted={},diff=0;methods.forEach((m,i)=>{counted[m]=Number(f.get('count'+i)||0);diff+=counted[m]-expected[m]});sh.expected=expected;sh.counted=counted;sh.difference=diff;sh.notes=f.get('notes');sh.endedAt=new Date().toISOString();sh.status='Fechado';db.activeShiftId=null;save();closeModal();render();alert('Turno fechado. Diferença total: '+money(diff))};
+}
+
+function modal(title,body){$('#modalTitle').textContent=title;$('#modalBody').innerHTML=body;$('#modalback').style.display='flex'}
+function closeModal(){$('#modalback').style.display='none'}
+function field(label,name,type='text',value='',opts=''){return `<div class="field"><label>${label}</label>${type==='select'?`<select name="${name}" ${opts}>${value}</select>`:`<input name="${name}" type="${type}" value="${String(value??'').replaceAll('"','&quot;')}" ${opts}>`}</div>`}
+function newRoom(r=null){let x=r||{number:'',category:db.cats[0]?.name||'',status:'Disponível'};modal(r?'Editar quarto':'Cadastrar quarto',`<form id="roomForm"><div class="formgrid">${field('Número do quarto','number','text',x.number,'required')}${field('Categoria','category','select',db.cats.map(cat=>`<option ${cat.name===x.category?'selected':''}>${cat.name}</option>`).join(''))}${field('Situação operacional','status','select',['Disponível','Indisponível','Manutenção','Limpeza','Bloqueado'].map(s=>`<option ${s===x.status?'selected':''}>${s}</option>`).join(''))}</div><div class="actions"><button type="button" class="btn secondary" onclick="closeModal()">Cancelar</button><button class="btn">Salvar quarto</button></div></form>`);$('#roomForm').onsubmit=e=>{e.preventDefault();let f=new FormData(e.target),number=f.get('number').trim();if(db.rooms.some(a=>a.number===number&&a.number!==x.number))return alert('Já existe um quarto com esse número.');if(r)Object.assign(r,{number,category:f.get('category'),status:f.get('status')});else db.rooms.push({id:Date.now(),number,category:f.get('category'),status:f.get('status')});save();closeModal();render()}}
+function editRoom(n){newRoom(db.rooms.find(r=>r.number===n))}
+async function lookupGuestCep(formId){
+ let form=document.getElementById(formId);if(!form)return;
+ let cep=(form.elements.namedItem('zip')?.value||'').replace(/\\D/g,'');
+ if(cep.length!==8){alert('Digite um CEP válido com 8 números.');return;}
+ let btn=form.querySelector('[data-cep-button]');if(btn){btn.disabled=true;btn.textContent='Buscando...';}
+ try{
+  let response=await fetch('https://viacep.com.br/ws/'+cep+'/json/');
+  if(!response.ok)throw new Error('Falha na consulta');
+  let data=await response.json();
+  if(data.erro){alert('CEP não encontrado. Confira os números ou preencha o endereço manualmente.');return;}
+  const set=(name,value)=>{let el=form.elements.namedItem(name);if(el&&value)el.value=value;};
+  set('street',data.logradouro);set('neighborhood',data.bairro);set('city',data.localidade);set('state',data.uf);
+  form.elements.namedItem('number')?.focus();
+ }catch(err){alert('Não foi possível consultar o CEP agora. Verifique sua conexão e preencha o endereço manualmente.');}
+ finally{if(btn){btn.disabled=false;btn.textContent='Buscar CEP';}}
+}
+function newGuest(g=null){
+ let x=g||{name:'',phone:'',email:'',document:'',zip:'',street:'',number:'',complement:'',neighborhood:'',city:'',state:''};
+ modal(g?'Editar hóspede':'Novo hóspede',`<form id="guestForm">
+ <h3>Dados pessoais</h3><div class="formgrid">${field('Nome completo','name','text',x.name,'required')}${field('Telefone','phone','tel',x.phone)}${field('E-mail','email','email',x.email)}${field('CPF / Documento','document','text',x.document)}</div>
+ <h3 style="margin-top:16px">Endereço residencial</h3>
+ <div class="formgrid">${field('CEP','zip','text',x.zip,'inputmode="numeric" maxlength="9" placeholder="00000-000"')}<div class="field"><label>&nbsp;</label><button type="button" class="btn secondary" data-cep-button onclick="lookupGuestCep('guestForm')">Buscar CEP</button></div>
+ ${field('Rua / Avenida','street','text',x.street)}${field('Número','number','text',x.number)}${field('Complemento','complement','text',x.complement)}${field('Bairro','neighborhood','text',x.neighborhood)}${field('Cidade','city','text',x.city)}${field('UF','state','text',x.state,'maxlength="2"')}</div>
+ <p class="muted">A busca pelo CEP preenche rua, bairro, cidade e UF quando esses dados estiverem disponíveis. Você pode corrigir ou completar os campos manualmente.</p>
+ <div class="actions"><button type="button" class="btn secondary" onclick="closeModal()">Cancelar</button><button class="btn">Salvar hóspede</button></div></form>`);
+ $('#guestForm').onsubmit=e=>{e.preventDefault();let f=new FormData(e.target),v=Object.fromEntries(f);v.zip=v.zip.replace(/\\D/g,'');v.state=v.state.toUpperCase();if(g)Object.assign(g,v);else db.guests.push({id:Date.now(),...v});save();closeModal();render()};
+}
+function viewGuest(id){
+ let g=db.guests.find(x=>x.id==id);if(!g)return;
+ let history=db.reservations.filter(r=>r.guestId==id).sort((a,b)=>b.checkin.localeCompare(a.checkin));
+ let address=[g.street,g.number,g.complement,g.neighborhood,g.city,g.state,g.zip].filter(Boolean).join(', ')||'Endereço não informado';
+ modal('Ficha do hóspede',`<section class="panel" style="box-shadow:none"><h3>Dados pessoais</h3><p><b>${g.name||'—'}</b></p><p>CPF / Documento: ${g.document||'—'}</p><p>Telefone: ${g.phone||'—'}</p><p>E-mail: ${g.email||'—'}</p><h3 style="margin-top:14px">Endereço residencial</h3><p>${address}</p></section><section class="panel" style="box-shadow:none"><h3>Histórico de reservas (${history.length})</h3>${history.length?`<div class="tablewrap"><table><thead><tr><th>Período</th><th>Quarto</th><th>Status</th></tr></thead><tbody>${history.map(r=>`<tr><td>${fmt(r.checkin)} – ${fmt(r.checkout)}</td><td>${r.room}</td><td>${pill(r.status)}</td></tr>`).join('')}</tbody></table></div>`:'<p class="muted">Nenhuma reserva vinculada.</p>'}</section><div class="actions"><button class="btn secondary" onclick="closeModal()">Fechar</button><button class="btn" onclick="closeModal();editGuest(${g.id})">Editar dados do hóspede</button></div>`);
+}
+function editGuest(id){newGuest(db.guests.find(g=>g.id===id))}
+function priceFor(room,checkin,checkout,excludeId=null){let cat=db.cats.find(c=>c.name===room.category),n=nights(checkin,checkout),occ=db.rooms.filter(r=>db.reservations.some(x=>active(x)&&x.id!==excludeId&&x.room===r.number&&x.checkin<=checkin&&x.checkout>checkin)).length/Math.max(1,db.rooms.length)*100;let mult=occ>=db.highOccupancy?db.highMultiplier:db.lowMultiplier;return Math.round((cat?.base||200)*mult*n*100)/100}
+function newReservation(r=null,presetRoom=null){
+ window._reservationEditing=r||null;
+ let x=r||{guestId:'',room:presetRoom||'',checkin:iso(addDays(today,1)),checkout:iso(addDays(today,2)),adults:1,children:0,channel:'Direta',status:'Confirmada',total:0,paid:0,companions:'',notes:'',discount:0,baseTotal:0};
+ if(!r&&presetRoom)x.room=presetRoom;
+ let rooms=db.rooms.filter(room=>room.status!=='Manutenção'&&room.status!=='Bloqueado');
+ let selectedInitialRoom=db.rooms.find(a=>String(a.number)===String(x.room));
+  let gross=r?Number(x.baseTotal??x.total??0):priceFor(selectedInitialRoom||db.rooms[0],x.checkin,x.checkout),discount=Number(x.discount||0);
+ modal(r?'Editar reserva':'Nova reserva',`<form id="resForm">
+ <div class="panel" style="padding:14px;margin-bottom:14px;box-shadow:none"><div class="panel-head"><h3>Hóspede principal</h3></div>
+ <div class="field"><label>Buscar hóspede cadastrado</label><input id="guestSearch" type="search" placeholder="Digite nome, telefone ou documento..." autocomplete="off"></div>
+ <div class="inline-new" style="align-items:end"><div class="field"><label>Resultados da busca</label><select id="resGuestResults" size="4" style="min-height:108px"><option value="">Digite para buscar um hóspede</option></select></div><button type="button" class="btn" style="background:#16845b;color:white;border-color:#16845b;min-height:44px" onclick="newGuestInline()">＋ Cadastrar novo hóspede</button></div>
+ <input type="hidden" name="guestId" id="resGuest" value="${x.guestId||''}">
+ <div id="guestSelected" class="muted" style="margin-top:8px">${x.guestId?`Hóspede selecionado: <b>${guest(x.guestId).name}</b>`:'Nenhum hóspede selecionado.'}</div>
+ </div>
+ <div class="panel" style="padding:14px;margin-bottom:14px;box-shadow:none"><div class="panel-head"><h3>Dados da hospedagem</h3></div>
+ <div class="formgrid"><div class="field"><label>Quarto</label><select name="room" required>${rooms.map(a=>`<option value="${a.number}" ${a.number===x.room?'selected':''}>${a.number} · ${a.category}</option>`).join('')}</select></div>
+ ${field('Check-in','checkin','date',x.checkin,'required')}${field('Check-out','checkout','date',x.checkout,'required')}
+ ${field('Adultos','adults','number',x.adults,'min="1"')}${field('Crianças','children','number',x.children,'min="0"')}
+ ${field('Canal de origem','channel','select',['Direta','Booking','Airbnb','Expedia','Telefone','WhatsApp','Outro'].map(s=>`<option ${s===x.channel?'selected':''}>${s}</option>`).join(''))}
+ ${field('Status da reserva','status','select',['Confirmada','Pendente','Cancelada'].map(s=>`<option ${s===x.status?'selected':''}>${s}</option>`).join(''))}
+ </div></div>
+ ${r&&r.checkedIn&&!r.closed?`<div class="panel" style="padding:14px;margin-bottom:14px;box-shadow:none;border:1px solid #e5a2aa"><div class="panel-head"><h3>Correção de check-in</h3><button type="button" class="btn secondary" onclick="cancelCheckin(${r.id})">Cancelar check-in</button></div><p class="muted">Use somente para corrigir uma entrada registrada por engano. A reserva e os pagamentos serão preservados.</p></div>`:''}
+ ${r?`<div class="panel" style="padding:14px;margin-bottom:14px;box-shadow:none"><div class="panel-head"><h3>Correção administrativa</h3></div><div class="field"><label>Motivo da alteração (opcional)</label><input id="dateCorrectionReason" type="text" placeholder="Ex.: erro de digitação na data pelo funcionário"></div><p class="muted">As alterações de check-in e check-out serão registradas no histórico da reserva. Corrigir as datas previstas não altera a hora real em que o hóspede entrou ou saiu.</p></div>`:''}
+ <div class="panel" style="padding:14px;margin-bottom:14px;box-shadow:none"><div class="panel-head"><h3>Acompanhantes e observações</h3></div>
+ <div class="field"><label>Nome dos acompanhantes</label><textarea name="companions" rows="2" placeholder="Informe os nomes das demais pessoas hospedadas no quarto">${x.companions||''}</textarea></div>
+ <div class="field"><label>Anotações extras da reserva</label><textarea name="notes" rows="3" placeholder="Pedidos especiais, horário previsto de chegada, necessidades, observações internas...">${x.notes||''}</textarea></div>
+ </div>
+ <div class="panel" style="padding:14px;margin-bottom:14px;box-shadow:none"><div class="panel-head"><h3>Serviços e consumação desta hospedagem</h3>${r?`<button type="button" class="btn secondary" onclick="closeModal();newChargeForReservation(${r.id})">＋ Lançar item</button>`:''}</div>${r?reservationExtrasHTML(r.id):'<div class="notice">Depois de salvar a reserva, você poderá lançar aqui produtos consumidos e serviços extras, como café da manhã, estacionamento e lavanderia. Tudo ficará vinculado a esta hospedagem e aparecerá no extrato.</div>'}</div>
+  <div class="panel" style="padding:14px;margin-bottom:14px;box-shadow:none"><div class="panel-head"><h3>Valores e desconto</h3></div>
+ <div class="discount-row"><div class="field"><label>Valor da hospedagem antes do desconto (R$)</label><input name="baseTotal" id="resBaseTotal" type="number" min="0" step=".01" value="${gross}" required></div><div class="field"><label>Desconto (R$)</label><input name="discount" id="resDiscount" type="number" min="0" step=".01" value="${discount}"></div></div>
+ <div class="formgrid"><div class="field"><label>Valor já pago (R$)</label><input name="paid" type="number" min="0" step=".01" value="${x.paid||0}"></div><div class="field"><label>Valor final da hospedagem</label><input id="resFinalTotal" type="text" readonly style="background:#f4f7ff;font-weight:800"></div></div>
+ <div class="field"><label>Observação do desconto (opcional)</label><input name="discountNote" value="${x.discountNote||''}" placeholder="Ex.: desconto autorizado pela gerência"></div>
+ <div class="pricebox" id="priceHint">O valor final será calculado automaticamente.</div>
+ </div>
+ <div class="actions"><button type="button" class="btn secondary" onclick="closeModal()">Cancelar</button><button class="btn">Salvar reserva</button></div></form>`);
+ let form=$('#resForm');
+ let guestSearch=$('#guestSearch'), guestResults=$('#resGuestResults'), guestHidden=$('#resGuest'), guestSelected=$('#guestSelected');
+ function renderGuestSearch(){
+  let q=(guestSearch.value||'').trim().toLocaleLowerCase('pt-BR');
+  let matches=db.guests.filter(g=>[g.name,g.phone,g.document,g.email].some(v=>String(v||'').toLocaleLowerCase('pt-BR').includes(q)));
+  guestResults.innerHTML=matches.length?matches.slice(0,100).map(g=>`<option value="${g.id}">${g.name} · ${g.phone||g.document||'sem contato'}</option>`).join(''):'<option value="">Nenhum hóspede encontrado</option>';
+  if(guestHidden.value && matches.some(g=>String(g.id)===String(guestHidden.value))) guestResults.value=String(guestHidden.value);
+ }
+ guestSearch.addEventListener('input',renderGuestSearch);
+ guestResults.addEventListener('change',()=>{
+  let g=db.guests.find(a=>String(a.id)===String(guestResults.value));
+  guestHidden.value=g?g.id:'';
+  guestSelected.innerHTML=g?`Hóspede selecionado: <b>${g.name}</b> · ${g.phone||'sem telefone'}`:'Nenhum hóspede selecionado.';
+ });
+ renderGuestSearch();
+ if(guestHidden.value){guestResults.value=String(guestHidden.value);}
+ function updateTotal(){
+  let base=Number($('#resBaseTotal').value||0),disc=Number($('#resDiscount').value||0),final=Math.max(0,base-disc);
+  $('#resFinalTotal').value=money(final);
+  let roomObj=db.rooms.find(a=>String(a.number)===String(form.elements.room.value));
+  let cat=db.cats.find(c=>c.name===roomObj?.category);
+  let n=nights(form.elements.checkin.value,form.elements.checkout.value);
+  $('#priceHint').innerHTML=`Categoria: <b>${cat?.name||'—'}</b> · Diárias: <b>${n}</b> · Tarifa-base: <b>${money(cat?.base||0)}/diária</b><br>Hospedagem: <b>${money(base)}</b> · Desconto: <b>${money(disc)}</b><br><b>Total estimado da reserva: ${money(final)}</b><div class="subtle-note">O valor é preenchido pela tarifa da categoria e pelas regras de ocupação. Você pode ajustá-lo manualmente antes de salvar.</div>`;
+ }
+ function recalculateRoomPrice(){
+  let roomObj=db.rooms.find(a=>String(a.number)===String(form.elements.room.value));
+  if(!roomObj)return;
+  if(form.elements.checkout.value<=form.elements.checkin.value){updateTotal();return}
+  $('#resBaseTotal').value=priceFor(roomObj,form.elements.checkin.value,form.elements.checkout.value,r?.id||null).toFixed(2);
+  updateTotal();
+ }
+ form.elements.room.addEventListener('change',recalculateRoomPrice);
+ form.elements.checkin.addEventListener('change',recalculateRoomPrice);
+ form.elements.checkout.addEventListener('change',recalculateRoomPrice);
+ $('#resBaseTotal').addEventListener('input',updateTotal);
+ $('#resDiscount').addEventListener('input',updateTotal);
+ updateTotal();
+ form.onsubmit=e=>{
+  e.preventDefault();
+  let f=new FormData(form),v=Object.fromEntries(f);
+  if(!v.guestId)return alert('Busque e selecione um hóspede ou cadastre um novo.');
+  if(v.checkout<=v.checkin)return alert('A saída deve ser posterior à entrada.');
+  let selectedRoom=db.rooms.find(a=>String(a.number)===String(v.room));
+  if(selectedRoom&&['Indisponível','Manutenção','Bloqueado'].includes(selectedRoom.status))return alert('Este quarto está '+selectedRoom.status.toLowerCase()+' e não pode receber reservas. Altere a situação do quarto antes de reservar.');
+  let roomConflict=db.reservations.some(a=>active(a)&&a.room===v.room&&a.id!==x.id&&v.checkin<a.checkout&&v.checkout>a.checkin);
+  if(roomConflict)return alert('Conflito: este quarto já possui reserva no período.');
+  let base=Number(v.baseTotal||0),disc=Number(v.discount||0);
+  if(disc>base)return alert('O desconto não pode ser maior que o valor da hospedagem.');
+  let final=Math.max(0,base-disc);
+  let total=final;
+  let data={...v,guestId:Number(v.guestId),adults:Number(v.adults),children:Number(v.children),baseTotal:base,discount:disc,total,paid:Number(v.paid||0),companions:v.companions||'',notes:v.notes||''};
+  if(r){
+   let changed=[];
+   if(r.checkin!==data.checkin)changed.push({field:'Check-in',from:r.checkin,to:data.checkin});
+   if(r.checkout!==data.checkout)changed.push({field:'Check-out',from:r.checkout,to:data.checkout});
+   if(changed.length){
+    r.dateHistory ||= [];
+    r.dateHistory.push({changedAt:iso(today),changedTime:new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}),changes:changed,reason:$('#dateCorrectionReason')?.value||'Correção administrativa'});
+   }
+   Object.assign(r,data);
+  } else db.reservations.push({id:Date.now(),...data});
+  save();closeModal();render();
+ };
+}
+function newGuestInline(){
+ modal('Cadastrar hóspede',`<form id="inlineGuestForm"><h3>Dados pessoais</h3><div class="formgrid">${field('Nome completo','name','text','','required')}${field('Telefone','phone','tel')}${field('E-mail','email','email')}${field('CPF / Documento','document','text')}</div>
+ <h3 style="margin-top:16px">Endereço residencial</h3><div class="formgrid">${field('CEP','zip','text','','inputmode="numeric" maxlength="9" placeholder="00000-000"')}<div class="field"><label>&nbsp;</label><button type="button" class="btn secondary" data-cep-button onclick="lookupGuestCep('inlineGuestForm')">Buscar CEP</button></div>
+ ${field('Rua / Avenida','street')}${field('Número','number')}${field('Complemento','complement')}${field('Bairro','neighborhood')}${field('Cidade','city')}${field('UF','state','text','','maxlength="2"')}</div>
+ <p class="muted">A consulta do CEP é opcional. Se não funcionar, você pode preencher o endereço manualmente.</p><div class="actions"><button type="button" class="btn secondary" onclick="newReservationReturn()">Voltar</button><button class="btn">Cadastrar e selecionar</button></div></form>`);
+ $('#inlineGuestForm').onsubmit=e=>{
+  e.preventDefault();let f=new FormData(e.target),g={id:Date.now(),name:f.get('name').trim(),phone:f.get('phone'),email:f.get('email'),document:f.get('document'),zip:(f.get('zip')||'').replace(/\\D/g,''),street:f.get('street'),number:f.get('number'),complement:f.get('complement'),neighborhood:f.get('neighborhood'),city:f.get('city'),state:(f.get('state')||'').toUpperCase()};
+  db.guests.push(g);save();closeModal();
+  let previousReservation=window._reservationEditing||null;
+  newReservation(previousReservation);
+  let sel=$('#resGuest');if(sel)sel.value=String(g.id);
+ };
+}
+function newReservationReturn(){closeModal();newReservation(window._reservationEditing||null)}
+function editReservation(id){let r=db.reservations.find(a=>a.id===id);newReservation(r)}
+function registerPayment(id){
+ let r=db.reservations.find(a=>a.id===id);
+ let charges=db.charges.filter(x=>x.reservationId==id);
+ let extras=charges.reduce((s,x)=>s+Number(x.total||0),0);
+ let extraPaid=charges.filter(x=>x.paid).reduce((s,x)=>s+Number(x.total||0),0);
+ let due=Number(r.total||0)+extras-Number(r.paid||0)-extraPaid;
+ modal('Registrar pagamento',`<p><b>Reserva #HS-${String(id).padStart(4,'0')}</b> · ${guest(r.guestId).name}</p>
+ <p class="muted">Saldo pendente: <b>${money(Math.max(0,due))}</b></p>
+ <form id="payForm"><div id="paymentRows"></div>
+ <button type="button" class="btn secondary" onclick="addPaymentRow()">＋ Adicionar outra forma de pagamento</button>
+ <div class="pricebox" id="paymentSum">Total informado: ${money(0)}</div>
+ <div class="actions"><button type="button" class="btn secondary" onclick="closeModal()">Cancelar</button><button class="btn">Registrar pagamento</button></div></form>`);
+ window._paymentReservationId=id; window._paymentRowCount=0; addPaymentRow();
+ $('#payForm').onsubmit=e=>{
+  e.preventDefault();let rows=[...document.querySelectorAll('.payment-row')],items=rows.map(row=>({method:row.querySelector('[name=method]').value,amount:Number(row.querySelector('[name=amount]').value||0)})).filter(x=>x.amount>0);
+  let total=items.reduce((s,x)=>s+x.amount,0);
+  if(!items.length)return alert('Informe pelo menos uma forma de pagamento.');
+  if(total>due+0.001)return alert('A soma dos pagamentos não pode ultrapassar o saldo pendente de '+money(due)+'.');
+  items.forEach((it,i)=>{
+   r.paid=Number(r.paid||0)+it.amount;
+   db.cashMovements.push({id:Date.now()+i,date:iso(today),type:'Entrada',description:'Pagamento hospedagem - quarto '+r.room,amount:it.amount,method:it.method,shiftId:db.activeShiftId||null,reservationId:r.id});
+   db.payments ||= [];
+   db.payments.push({id:Date.now()+i, reservationId:r.id,date:iso(today),method:it.method,amount:it.amount});
+  });
+  save();closeModal();render();
+ };
+}
+function addPaymentRow(){
+ let n=++window._paymentRowCount,host=$('#paymentRows');
+ let div=document.createElement('div');div.className='payment-row formgrid';div.style.cssText='padding:10px;border:1px solid var(--line);border-radius:10px;margin:8px 0;align-items:end';
+ div.innerHTML=`<div class="field"><label>Forma de pagamento</label><select name="method"><option>Dinheiro</option><option>Pix</option><option>Cartão de crédito</option><option>Cartão de débito</option><option>Transferência bancária</option><option>Link de pagamento</option><option>Vale / crédito do hotel</option><option>Outro</option></select></div><div class="field"><label>Valor (R$)</label><input name="amount" type="number" min="0" step=".01" value="0"></div><button type="button" class="btn ghost" onclick="this.parentElement.remove();updatePaymentSum()">Remover</button>`;
+ div.querySelector('[name=amount]').addEventListener('input',updatePaymentSum);host.appendChild(div);updatePaymentSum();
+}
+function updatePaymentSum(){
+ let total=[...document.querySelectorAll('.payment-row [name=amount]')].reduce((s,x)=>s+Number(x.value||0),0);
+ let el=$('#paymentSum');if(el)el.innerHTML='Total informado: <b>'+money(total)+'</b>';
+}
+function newCategory(cat=null){let x=cat||{name:'',base:200};modal(cat?'Editar categoria':'Nova categoria',`<form id="catForm">${field('Nome da categoria','name','text',x.name,'required')}${field('Preço-base por diária (R$)','base','number',x.base,'min="1" step=".01" required')}<div class="actions"><button type="button" class="btn secondary" onclick="closeModal()">Cancelar</button><button class="btn">Salvar</button></div></form>`);$('#catForm').onsubmit=e=>{e.preventDefault();let f=new FormData(e.target),name=f.get('name').trim(),base=Number(f.get('base'));if(db.cats.some(c=>c.name.toLowerCase()===name.toLowerCase()&&c.id!==x.id))return alert('Categoria já existe.');if(cat){let old=cat.name;cat.name=name;cat.base=base;db.rooms.filter(r=>r.category===old).forEach(r=>r.category=name)}else db.cats.push({id:Date.now(),name,base});save();closeModal();render()}}
+function editCategory(id){newCategory(db.cats.find(c=>c.id===id))}
+function exportData(){let blob=new Blob([JSON.stringify(db,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='hotelsync-backup.json';a.click();URL.revokeObjectURL(a.href)}
+function importData(e){let file=e.target.files[0];if(!file)return;let reader=new FileReader();reader.onload=()=>{try{let x=JSON.parse(reader.result);if(!x.rooms||!x.reservations||!x.guests)throw 0;db=x;save();render();alert('Backup importado.')}catch(err){alert('Arquivo de backup inválido.')}};reader.readAsText(file)}
+function resetData(){if(confirm('Isso substituirá os dados atuais pelos dados demonstrativos. Continuar?')){db=seed();save();render()}}
+function toggleMobile(){let s=document.querySelector('.side');s.style.display=s.style.display==='flex'?'none':'flex';s.style.position='absolute';s.style.zIndex=8;s.style.minHeight='100vh';s.style.width='248px'}
+render();
+</script>
+<script>
+// Supabase Auth: usa somente a chave publicável (nunca inserir service_role/secret no navegador).
+const HOTEL_SUPABASE_URL = 'https://mgqhcdlteaxemtzohcsx.supabase.co';
+const HOTEL_SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_AdMNGQvRUx_-ovKv1KTZSw_UYIu8TxG';
+const hotelSupabase = window.supabase.createClient(HOTEL_SUPABASE_URL, HOTEL_SUPABASE_PUBLISHABLE_KEY);
+let hotelCurrentUser = null;
+let hotelCurrentProfile = null;
+const HOTEL_ROLE_LABELS = {admin:'Administrador',manager:'Gerência',reception:'Recepção',housekeeping:'Limpeza'};
+const HOTEL_ROLE_PAGES = {
+ admin:['dashboard','reservations','archive','finalized','calendar','rooms','cleaning','breakfast','parking','guests','finance','consumption','products','services','cash','shifts','rates','settings'],
+ manager:['dashboard','reservations','archive','finalized','calendar','rooms','cleaning','breakfast','parking','guests','finance','consumption','products','services','cash','shifts','rates'],
+ reception:['dashboard','reservations','archive','finalized','calendar','rooms','cleaning','breakfast','parking','guests','consumption'],
+ housekeeping:['cleaning']
+};
+function hotelShowLogin(message=''){document.body.classList.remove('authenticated');document.getElementById('loginScreen').style.display='flex';const e=document.getElementById('loginError');e.textContent=message;e.style.display=message?'block':'none';}
+function hotelApplyProfile(profile,user){
+ hotelCurrentUser=user;hotelCurrentProfile=profile;document.body.classList.add('authenticated');document.getElementById('loginScreen').style.display='none';
+ const label=HOTEL_ROLE_LABELS[profile.role]||profile.role;
+ document.getElementById('currentUserLabel').textContent=(profile.full_name||user.email)+' · '+label;
+ document.getElementById('currentUserAvatar').textContent=(profile.full_name||user.email||'?').trim().charAt(0).toUpperCase();
+ document.getElementById('sideUserInfo').innerHTML=(profile.full_name||user.email)+'<br>'+label+' · conectado';
+ const allowed=HOTEL_ROLE_PAGES[profile.role]||[];
+ document.querySelectorAll('#nav button[data-page]').forEach(b=>{b.style.display=allowed.includes(b.dataset.page)?'block':'none'});
+ if(!allowed.includes(page)) page=allowed[0]||'cleaning';
+ pageNav(page);
+}
+async function hotelLoadProfile(user){
+ const {data,error}=await hotelSupabase.from('user_profiles').select('user_id,full_name,role,active').eq('user_id',user.id).maybeSingle();
+ if(error) throw error;
+ if(!data) throw new Error('Sua conta autenticou, mas não possui perfil cadastrado em user_profiles. Peça ao administrador para associar seu usuário.');
+ if(!data.active) throw new Error('Este usuário está desativado.');
+ if(!HOTEL_ROLE_PAGES[data.role]) throw new Error('Perfil sem permissões reconhecidas.');
+ hotelApplyProfile(data,user);
+}
+document.getElementById('loginForm').addEventListener('submit',async e=>{
+ e.preventDefault();const btn=document.getElementById('loginSubmit');btn.disabled=true;btn.textContent='Entrando…';
+ try{const email=document.getElementById('loginEmail').value.trim();const password=document.getElementById('loginPassword').value;
+ const {data,error}=await hotelSupabase.auth.signInWithPassword({email,password});if(error)throw error;await hotelLoadProfile(data.user);
+ }catch(err){await hotelSupabase.auth.signOut();hotelShowLogin(err.message||'Não foi possível entrar. Confira e-mail e senha.');}
+ finally{btn.disabled=false;btn.textContent='Entrar';}
+});
+async function hotelLogout(){await hotelSupabase.auth.signOut();hotelCurrentUser=null;hotelCurrentProfile=null;hotelShowLogin();}
+(async()=>{
+ try{const {data,error}=await hotelSupabase.auth.getSession();if(error)throw error;if(data.session)await hotelLoadProfile(data.session.user);else hotelShowLogin();}
+ catch(err){await hotelSupabase.auth.signOut();hotelShowLogin(err.message||'Não foi possível validar a sessão.');}
+})();
+hotelSupabase.auth.onAuthStateChange(async(event,session)=>{
+ if(event==='SIGNED_OUT'){hotelCurrentUser=null;hotelCurrentProfile=null;hotelShowLogin();}
+});
+</script>
+</body></html>
